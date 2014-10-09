@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+
+<html ng-app="demo">
+	<head>
+		<meta name="viewport" content="width=device-width" />
+		<title text="">Fancypants Sliding Modal Demo</title>
+		
+		<style type="text/less">
+			.transition (@value1,@value2:X,...) { @value: ~`"@{arguments}".replace(/[\[\]]|\,\sX/g, '')`; -webkit-transition: @value; -moz-transition: @value; -ms-transition: @value; -o-transition: @value; transition: @value; }
+			.transform (@value1,@value2:X,...) { @value: ~`"@{arguments}".replace(/[\[\]]|\,\sX/g, '')`; transform:@value; -ms-transform:@value; -webkit-transform:@value; -o-transform:@value; -moz-transform:@value; }
+			.border-box { box-sizing:border-box; -moz-box-sizing:border-box; }
+			
+			modal { position:absolute; display:block; top:0; left:0; right:0;
+				@loader-size:70px;
+				@buffer:75px;
+				@animation-speed:250ms;
+				>div.overlay { background:black; position:fixed; opacity:0.6; top:0; right:0; bottom:0; left:0; z-index:2;
+					&.show { visibility:visible; opacity:0.6; .transition(opacity ease @animation-speed); }
+					&.hide { visibility:hidden; opacity:0; transition:visibility 0s @animation-speed, opacity ease @animation-speed; }
+				}
+				>div.content { position:absolute; left:0; right:0; margin:auto; background:white; border-radius:3px; width:500px; padding:15px; z-index:3; top:@buffer; .transition(transform ease @animation-speed, -webkit-transform ease @animation-speed); .transform(translate3d(0, ~"calc(-100% - 75px)", 0));
+					&.show { .transform(translate3d(0, 0, 0)); }
+					
+					>h2 { margin:0; }
+					>* { float:left; width:100%; margin-top:10px; }
+					>*:first-child { margin-top:0; }
+				}
+			}
+			
+			body { font-family:Arial; font-size:14px; }
+			body>span, body>h1 { float:left; width:100%; margin:0; padding:0; margin-bottom:10px; }
+			
+			span { color:#888888; }
+			button { width:auto; padding:7px 22px; }
+		</style>
+		
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular.min.js"></script>
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.5/less.min.js"></script>
+		
+		<script type="text/javascript">
+			var app = angular.module("demo", []);
+
+			app.controller("modalDemo", function($scope, $rootScope) {
+				$scope.visible = false;
+				
+				$scope.close = function() {
+					$scope.visible = false;
+				};
+				
+				$rootScope.$on("escapePressed", function() {
+					$scope.$apply(function() {
+						if ($scope.visible === true) {
+							$scope.close();
+						}
+					});
+				});
+			});
+
+			app.run(function($rootScope) {
+				document.addEventListener("keyup", function(e) {
+					if (e.keyCode === 27)
+						$rootScope.$broadcast("escapePressed", e.target);
+				});
+			});
+			
+			app.directive("modal", function($rootScope, $timeout) {
+				return {
+					restrict: "E",
+					templateUrl: "templates/modal.html",
+					transclude: true
+				};
+			});
+		</script>
+	</head>
+	<body ng-controller="modalDemo">
+		<h1>Fancypants Sliding Modal Demo</h1>
+		<span>This is page demonstrates how a modal dialog can be slid in from above the viewable page area, while at the same time having a transparent overlay fade in. Closing the modal dialog (by pressing escape or clicking the close button on the dialog itself) will cause the modal to slide back up to the hidden position, while at the same time fading the overlay back to hidden.</span>
+		<span>The modal itself is an Angular JS directive, and I'm using LESS CSS for some of the more complicated CSS rules. I highly recommend you check them out.</span>
+		<button ng-click="visible = true">Show Modal!</button>
+		
+		<modal class="issue" visible="visible">
+			<h2>Woo Modal!</h2>
+			<span>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</span>
+			<span>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</span>
+			<button ng-click="close()">Close</button>
+		</modal>
+	</body>
+</html>
