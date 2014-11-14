@@ -23,17 +23,18 @@
 			
 			
 			flipper { float:left; width:250px; height:250px; margin-right:15px; display:block; .perspective;
+				span { color:white; }
 				>div.flipper { float:left; width:100%; height:100%; position:relative; .transform-style(preserve-3d);
-					div.front, div.back { float:left; width:100%; height:100%; backface-visibility:hidden; position:absolute; top:0; left:0; .transform-style(preserve-3d); .transition(transform ease 500ms, -webkit-transform ease 500ms); }
+					.front, .back { float:left; display:block; width:100%; height:100%; backface-visibility:hidden; position:absolute; top:0; left:0; .transform-style(preserve-3d); .transition(transform ease 500ms, -webkit-transform ease 500ms); }
 					
-					div.front {
+					.front {
 						z-index:2;
 						background:#19489E;
 						
 						/* front tile styles go here! */
 					}
 					
-					div.back {
+					.back {
 						background:#9E1919;
 						
 						/* back tile styles go here! */
@@ -42,22 +43,22 @@
 			}
 			
 			flipper[horizontal] {
-				div.front { .transform(rotateY(0deg)); }
-				div.back { .transform(rotateY(-180deg)); }
+				.front { .transform(rotateY(0deg)); }
+				.back { .transform(rotateY(-180deg)); }
 				
 				div.flipper.flipped {
-					div.front { .transform(rotateY(180deg)); }
-					div.back { .transform(rotateY(0deg)); }
+					.front { .transform(rotateY(180deg)); }
+					.back { .transform(rotateY(0deg)); }
 				}
 			}
 			
 			flipper[vertical] {
-				div.front { .transform(rotateX(0deg)); }
-				div.back { .transform(rotateX(-180deg)); }
+				.front { .transform(rotateX(0deg)); }
+				.back { .transform(rotateX(-180deg)); }
 				
 				div.flipper.flipped {
-					div.front { .transform(rotateX(180deg)); }
-					div.back { .transform(rotateX(0deg)); }
+					.front { .transform(rotateX(180deg)); }
+					.back { .transform(rotateX(0deg)); }
 				}
 			}
 		</style>
@@ -98,6 +99,22 @@
 					}
 				};
 			});
+			
+			app.directive("front", function() {
+				return {
+					restrict: "E",
+					template: "<div class='front tile' ng-transclude></div>",
+					transclude: true
+				};
+			});
+			
+			app.directive("back", function() {
+				return {
+					restrict: "E",
+					template: "<div class='back tile' ng-transclude></div>",
+					transclude: true
+				}
+			});
 		</script>
 	</head>
 	<body ng-controller="flipperDemo">
@@ -106,21 +123,21 @@
 		<span>The flipper itself is an Angular JS directive, and I'm using LESS CSS for some of the more complicated CSS rules. I highly recommend you check them out.</span>
 		
 		<flipper flipped="flipped" horizontal>
-			<div class="front tile">
+			<front>
 				the front!
-			</div>
-			<div class="back tile">
+			</front>
+			<back>
 				the back!
-			</div>
+			</back>
 		</flipper>
 		
 		<flipper flipped="flipped" vertical>
-			<div class="front tile">
+			<front>
 				the front!
-			</div>
-			<div class="back tile">
+			</front>
+			<back>
 				the back!
-			</div>
+			</back>
 		</flipper>
 		
 		<div class="button-container">
