@@ -76,13 +76,6 @@
 					$scope.flipped = !$scope.flipped;
 				};
 			});
-
-			app.run(function($rootScope) {
-				document.addEventListener("keyup", function(e) {
-					if (e.keyCode === 27)
-						$rootScope.$broadcast("escapePressed", e.target);
-				});
-			});
 			
 			app.directive("flipper", function($rootScope, $timeout) {
 				return {
