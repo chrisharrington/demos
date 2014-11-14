@@ -91,11 +91,6 @@
 					transclude: true,
 					scope: {
 						flipped: "="
-					},
-					link: function(scope) {
-						scope.$watch("flipped", function() {
-							console.log(scope.flipped);
-						});
 					}
 				};
 			});
