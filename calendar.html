@@ -54,10 +54,10 @@
 		<script type="text/javascript">
 			var app = angular.module("demo", []);
 
-			app.controller("calendarDemo", function($scope) {
+            app.controller("calendarDemo", function($scope) {
                 $scope.day = moment();
             });
-			
+
             app.directive("calendar", function() {
                 return {
                     restrict: "E",
@@ -66,12 +66,12 @@
                         selected: "="
                     },
                     link: function(scope) {
-                        scope.selected = (scope.selected || moment()).hours(0).minutes(0).seconds(0).milliseconds(0);
+                        scope.selected = _removeTime(scope.selected || moment());
                         scope.month = scope.selected.clone();
 
                         var start = scope.selected.clone();
                         start.date(1);
-                        start.day(0).hour(0).minute(0).second(0).millisecond(0);
+                        _removeTime(start.day(0));
 
                         _buildMonth(scope, start, scope.month);
 
@@ -81,19 +81,23 @@
 
                         scope.next = function() {
                             var next = scope.month.clone();
-                            next.month(next.month()+1).date(1).day(0).hour(0).minute(0).second(0).millisecond(0);
+                            _removeTime(next.month(next.month()+1).date(1));
                             scope.month.month(scope.month.month()+1);
                             _buildMonth(scope, next, scope.month);
                         };
 
                         scope.previous = function() {
                             var previous = scope.month.clone();
-                            previous.month(previous.month()-1).date(1).day(0).hour(0).minute(0).second(0).millisecond(0);
+                            _removeTime(previous.month(previous.month()-1).date(1));
                             scope.month.month(scope.month.month()-1);
                             _buildMonth(scope, previous, scope.month);
                         };
                     }
                 };
+
+                function _removeTime(date) {
+                    return date.day(0).hour(0).minute(0).second(0).millisecond(0);
+                }
 
                 function _buildMonth(scope, start, month) {
                     scope.weeks = [];

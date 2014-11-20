@@ -18,11 +18,13 @@
             You can see it <a href="http://chrisharrington.github.com/demos/calendar.html" target="_blank">here</a>.
         </p>
         
+        <img src="https://i.imgur.com/4m50fpQ.png" alt="sample" width="298" height="257" />
+        
         <p>
 			I'm going to break down the write up into a couple of different sections. First, the HTML. It's pretty straightforward,
             as it's just the calendar directive HTML. Then, we'll walk through the JavaScript code, which shows how I'm using Angular
             JS to update the directive's state which, in turn, updates the calendar view. Finally, I'll describe what I'm doing
-			with each off the CSS rules that style the calendar. While most of the CSS is simple, there are few things I'm going to go
+			with each of the CSS rules that style the calendar. While most of the CSS is simple, there are few things I'm going to go
             over that might be new to the reader.
 		</p>
         
@@ -33,7 +35,7 @@
 		
 		<h3>HTML</h3>
         
-        <h4>Example</h4>
+        <h4>Directive Usage</h4>
 
         <pre>
 &lt;calendar selected="day"&gt;&lt;/calendar&gt;
@@ -83,7 +85,7 @@
         <h3>JavaScript</h3>
         
         <p>
-            Here's the Angular code for setting up the calendar directive, as well as the controller for our test page.
+            Here's the Angular code for setting up the calendar directive, as well as the controller for our test page. To reduce confusion, I would break out the controller and directive into separate files, as is Angular best practice. For brevity's sake, I've included all the script in one section.
         </p>
         
         <pre>
@@ -101,12 +103,12 @@ app.directive("calendar", function() {
             selected: "="
         },
         link: function(scope) {
-            scope.selected = (scope.selected || moment()).hours(0).minutes(0).seconds(0).milliseconds(0);
+            scope.selected = _removeTime(scope.selected || moment());
             scope.month = scope.selected.clone();
 
             var start = scope.selected.clone();
             start.date(1);
-            start.day(0).hour(0).minute(0).second(0).millisecond(0);
+            _removeTime(start.day(0));
 
             _buildMonth(scope, start, scope.month);
 
@@ -116,19 +118,23 @@ app.directive("calendar", function() {
 
             scope.next = function() {
                 var next = scope.month.clone();
-                next.month(next.month()+1).date(1).day(0).hour(0).minute(0).second(0).millisecond(0);
+                _removeTime(next.month(next.month()+1)).date(1));
                 scope.month.month(scope.month.month()+1);
                 _buildMonth(scope, next, scope.month);
             };
 
             scope.previous = function() {
                 var previous = scope.month.clone();
-                previous.month(previous.month()-1).date(1).day(0).hour(0).minute(0).second(0).millisecond(0);
+                _removeTime(previous.month(previous.month()-1).date(1));
                 scope.month.month(scope.month.month()-1);
                 _buildMonth(scope, previous, scope.month);
             };
         }
     };
+    
+    function _removeTime(date) {
+        return date.day(0).hour(0).minute(0).second(0).millisecond(0);
+    }
 
     function _buildMonth(scope, start, month) {
         scope.weeks = [];
