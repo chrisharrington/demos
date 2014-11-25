@@ -63,7 +63,7 @@
 						placeholder: "@",
 						ngModel: "="
 					},
-					link: function(scope, element) {
+					compile: function(element) {
 						$(element).on("focus", "input", function() {
 							$(element).addClass("focus");
 						});
