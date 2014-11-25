@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+
+<html ng-app="demo">
+	<head>
+		<meta name="viewport" content="width=device-width" />
+		<title text="">Angular JS Dropdown Demo</title>
+		
+        <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.css" />
+        
+		<style type="text/less">
+			body { font-family:Arial; font-size:14px; }
+			body>span, body>h1 { float:left; width:100%; margin:0; padding:0; margin-bottom:10px; }
+			
+			span { color:#888888;
+                >b { color:black; }
+            }
+			
+			#selected { width:100%; margin-top:20px; }
+            
+            .vertical-centre (@height) { height:@height; line-height:@height !important; display:inline-block; vertical-align:middle; }
+            .border-box { box-sizing:border-box; -moz-box-sizing:border-box; }
+			.transition (@value1,@value2:X,...) { @value: ~`"@{arguments}".replace(/[\[\]]|\,\sX/g, '')`; -webkit-transition: @value; -moz-transition: @value; -ms-transition: @value; -o-transition: @value; transition: @value; }
+			.transform (@value1,@value2:X,...) { @value: ~`"@{arguments}".replace(/[\[\]]|\,\sX/g, '')`; transform:@value; -ms-transform:@value; -webkit-transform:@value; -o-transform:@value; -moz-transform:@value; }
+			
+			@height:40px;
+			@spacing:10px;
+			@placeholder-colour:#AAA;
+			@select-colour:#2875C7;
+			@font-size:14px;
+			@border-colour:#DDD;
+			
+			dropdown { float:left; display:block; width:250px;
+				>div { float:left; width:100%;
+					>div.dropdown-display { float:left; width:100%; background:white; height:@height; cursor:pointer; border:solid 1px @border-colour; .border-box;
+						@icon-width:14px;
+						>* { float:left; height:100%; .vertical-centre(@height); }
+						>span { font-size:@font-size; width:100%; position:relative; .border-box; padding-right:@icon-width+@spacing*2; padding-left:@spacing;
+							&.placeholder { color:@placeholder-colour; }
+						}
+						>i { position:relative; width:@icon-width; margin-left:(@spacing+@icon-width)*-1; font-size:1.125em; font-weight:bold; padding-right:@spacing; text-align:right; }
+					}
+
+					>div.dropdown-list { float:left; width:100%; position:relative; width:100%; .transform(scale(1, 0)); .transition(transform ease 250ms, -webkit-transform ease 250ms);
+						>div { position:absolute; width:100%; z-index:2; cursor:pointer; background:white; max-height:220px;
+							>div { float:left; width:100%; padding:0 @spacing; font-size:@font-size; .border-box; border:solid 1px @border-colour; border-top:none;
+								@icon-width:20px;
+								&:hover { background:#F0F0F0; }
+								&.selected { background:@select-colour; color:white; }
+								>* { .vertical-centre(@height); }
+								>span { float:left; width:100%; position:relative; padding-right:@icon-width+@spacing; .border-box; color:inherit; }
+								>i { float:left; width:@icon-width; margin-left:@icon-width*-1; display:none; }
+								&.selected>i { display:inline-block; }
+							}
+						}
+					}
+				}
+
+				>div.show>div.dropdown-list { .transform(scale(1, 1)); }
+			}
+        </style>
+		
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular.min.js"></script>
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.5/less.min.js"></script>
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        
+		<script type="text/javascript">
+			var app = angular.module("demo", []);
+
+            app.controller("dropdownDemo", function($scope) {
+				$scope.colours = [{
+					name: "Red",
+					hex: "#F21B1B"
+				}, {
+					name: "Blue",
+					hex: "#1B66F2"
+				}, {
+					name: "Green",
+					hex: "#07BA16"
+				}];
+                $scope.colour = "";
+            });
+			
+			app.run(function($rootScope) {
+				angular.element(document).on("click", function(e) {
+					$rootScope.$broadcast("documentClicked", angular.element(e.target));
+				});
+			});
+
+            app.directive("dropdown", function($rootScope) {
+                return {
+					restrict: "E",
+					templateUrl: "templates/dropdown.html",
+					scope: {
+						placeholder: "@",
+						list: "=",
+						selected: "=",
+						property: "@"
+					},
+					link: function(scope) {
+						scope.listVisible = false;
+						scope.isPlaceholder = true;
+
+						scope.select = function(item) {
+							scope.isPlaceholder = false;
+							scope.selected = item;
+							if (scope.onChange !== undefined)
+								scope.onChange(item);
+						};
+
+						scope.isSelected = function(item) {
+							return item[scope.property] === scope.selected[scope.property];
+						};
+						
+						scope.show = function() {
+							scope.listVisible = true;
+						};
+
+						$rootScope.$on("documentClicked", function(inner, target) {
+							console.log($(target[0]).is(".dropdown-display.clicked") || $(target[0]).parents(".dropdown-display.clicked").length > 0);
+							if (!$(target[0]).is(".dropdown-display.clicked") && !$(target[0]).parents(".dropdown-display.clicked").length > 0)
+								scope.$apply(function() {
+									scope.listVisible = false;
+								});
+						});
+
+						scope.$watch("selected", function(value) {
+							scope.isPlaceholder = scope.selected[scope.property] === undefined;
+							scope.display = scope.selected[scope.property];
+						});
+					}
+				}
+            });
+		</script>
+	</head>
+	<body ng-controller="dropdownDemo">
+		<h1>Dropdown Demo</h1>
+		<span>This page demonstrates the use of a dropdown control built in Angular JS. It allows the user to choose a .</span>
+		<span>The calendar itself is an Angular JS directive, and I'm using LESS CSS for some of the more complicated CSS rules. I'm also make use of Moment.js, a library that allows for easier manipulation of time than the standard JavaScript libraries. I highly recommend you check them out.</span>
+		
+		<span id="selected">Selected colour: <b style="color: {{colour.hex}}">{{colour.hex}}</b></span>
+		
+		<dropdown placeholder="Colour..." list="colours" property="name" selected="colour"></dropdown>
+	</body>
+</html>
