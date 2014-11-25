@@ -51,6 +51,7 @@
 
             app.controller("textDemo", function($scope) {
                 $scope.value = "";
+				$scope.error = "";
             });
 			
 			app.directive("text", function() {
@@ -81,6 +82,6 @@
 		<span>The focus text input itself is an Angular JS directive, and I'm using LESS CSS for some of the more complicated CSS rules. I highly recommend you check them out.</span>
 		
 		<text type="text" placeholder="Focus here..." ng-model="value"></text>
-		<text class="error" placeholder="Error!"></text>
+		<text class="error" placeholder="Error!" ng-model="error"></text>
 	</body>
 </html>
