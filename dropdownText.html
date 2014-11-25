@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Angular JS Dropdown</title>
+    </head>
+    <body>
+        <h2>Angular JS Dropdown</h2>
+        
+        <p>
+            Today, I'm going to talk about how to create a dropdown control using <a href="http://angularjs.org" target="_blank">Angular JS</a>, <a href="http://lesscss.org/" target="_blank">LESS CSS</a>, and <a href="https://fortawesome.github.io/Font-Awesome/" target="_blank">Font Awesome</a>. I'm going to assume you're at least halfway familiar with these tools, but if you're not, I suggest you take a look using the links above. The dropdown itself is an Angular JS directive which is styled using LESS CSS to provide some fancy open and close animations. You can see it <a href="http://chrisharrington.github.com/demos/dropdown.html" target="_blank">here</a>.
+        </p>
+        
+        <p>
+			The write up will be split into three distinct sections. First, there's the HTML, which will include example usage for the directive, plus an explanation of what I'm doing in the directive's template. Second, I'll go over the JavaScript and how it ties the directive into the controller and the Angular app itself. Finally, I'll show you the CSS I've used to style the dropdown and how it uses CSS3 animations to provide a (mobile friendly) open and close animation.
+		</p>
+        
+        <p>
+			<b>Note:</b> The CSS shown here might not match up with exactly what you see on the demo page because I want the demo to look at least halfway decent with some pretty styling. For the most part, though, I'm going to try to keep the CSS on the tutorial as bare as possible.
+		</p>
+		
+		<h3>HTML</h3>
+        
+        <h4>Directive Usage</h4>
+
+        <pre>
+&lt;dropdown placeholder="Colour..." list="colours" selected="colour" property="name"&gt;&lt;/dropdown&gt;
+        </pre>
+		
+		<p>Here's an example of how you can use the dropdown. The <b>placeholder</b> attribute defines what text to show before the user selected anything. The <b>colours</b> variable corresponds to a list of items you want to show in the list, which is used in conjunction with the <b>property</b> attribute, which defines the property that should be displayed to the user from your complex JavaScript list objects. Finally, the <b>selected</b> attribute stores the selected value on the parent controller.</p>
+        
+        <h4>Dropdown Template</h4>
+        
+        <p>
+            Because the dropdown template is quite large, I've extracted it and placed it in its own HTML file, which is the best practice.
+        </p>
+        
+        <pre>
+&lt;div class="dropdown-container" ng-class="{ show: listVisible }"&gt;
+	&lt;div class="dropdown-display" ng-click="show();" ng-class="{ clicked: listVisible }"&gt;
+		&lt;span ng-if="!isPlaceholder"&gt;{{display}}&lt;/span&gt;
+		&lt;span class="placeholder" ng-if="isPlaceholder"&gt;{{placeholder}}lt;/span&gt;
+		&lt;i class="fa fa-angle-down"&gt;&lt;/i&gt;
+	&lt;/div&gt;
+	&lt;div class="dropdown-list"&gt;
+		&lt;div&gt;
+			&lt;div ng-repeat="item in list" ng-click="select(item)" ng-class="{ selected: isSelected(item) }"&gt;
+				&lt;span&gt;{{property !== undefined ? item[property] : item}}&lt;/span&gt;
+				&lt;i class="fa fa-check"&gt;&lt;/i&gt;
+			&lt;/div&gt;
+		&lt;/div&gt;
+	&lt;/div&gt;
+&lt;/div&gt;
+        </pre>
+        
+        <p>
+            Most of this is straightforward, but there are a couple of things I should go over. First, we're using Font Awesome to render the arrow that indicates to the user that an action will occur when clicking on the dropdown display. This is accomplished using Font Awesome's CSS classes, namely <b>fa</b> and <b>fa-angle-down</b>. The first is the base Font Awesome class, and the second indicates which icon to draw. We're making liberal use of the <b>ng-class</b> built-in Angular directive, which adds a CSS class to an element based on the truthiness of the specified value. We're also using the <b>ng-if</b> directive, which only renders the attributed element if the specified scope variable is truthy. In this case, we're showing the placeholder container only if the <b>isPlaceholder</b> variable is set, which I'll go over below. For the list of items in the dropdown list, we're using the <b>ng-repeat</b> directive, which renders the attributed element (and its children) for each of the items in the specified list. Finally, we're using the <b>ng-click</b> directive to hook up a click handler to select the item in the list when clicked.
+		</p>
+        
+        <h3>JavaScript</h3>
+        
+        <p>
+            Here's the Angular code for setting up the dropdown directive, as well as the controller for our test page. To reduce confusion, I would break out the controller and directive into separate files, as is Angular best practice. For brevity's sake, I've included all the script in one section.
+        </p>
+        
+        <pre>
+var app = angular.module("demo", []);
+
+app.controller("dropdownDemo", function($scope) {
+	$scope.colours = [{
+		name: "Red",
+		hex: "#F21B1B"
+	}, {
+		name: "Blue",
+		hex: "#1B66F2"
+	}, {
+		name: "Green",
+		hex: "#07BA16"
+	}];
+	$scope.colour = "";
+});
+
+app.run(function($rootScope) {
+	angular.element(document).on("click", function(e) {
+		$rootScope.$broadcast("documentClicked", angular.element(e.target));
+	});
+});
+
+app.directive("dropdown", function($rootScope) {
+	return {
+		restrict: "E",
+		templateUrl: "templates/dropdown.html",
+		scope: {
+			placeholder: "@",
+			list: "=",
+			selected: "=",
+			property: "@"
+		},
+		link: function(scope) {
+			scope.listVisible = false;
+			scope.isPlaceholder = true;
+
+			scope.select = function(item) {
+				scope.isPlaceholder = false;
+				scope.selected = item;
+			};
+
+			scope.isSelected = function(item) {
+				return item[scope.property] === scope.selected[scope.property];
+			};
+
+			scope.show = function() {
+				scope.listVisible = true;
+			};
+
+			$rootScope.$on("documentClicked", function(inner, target) {
+				console.log($(target[0]).is(".dropdown-display.clicked") || $(target[0]).parents(".dropdown-display.clicked").length > 0);
+				if (!$(target[0]).is(".dropdown-display.clicked") && !$(target[0]).parents(".dropdown-display.clicked").length > 0)
+					scope.$apply(function() {
+						scope.listVisible = false;
+					});
+			});
+
+			scope.$watch("selected", function(value) {
+				scope.isPlaceholder = scope.selected[scope.property] === undefined;
+				scope.display = scope.selected[scope.property];
+			});
+		}
+	}
+});
+        </pre>
+        
+        <p>
+            First, we're setting up the Angular application for the demo. Then, we set up the controller for the page, and finally, we create the dropdown directive. The controller contains two variables: <b>colours</b> and <b>colour</b>. The first is the list of colours to show in the dropdown list, and the second stores the selected colour after the user has clicked on an item in the dropdown list. The colours list contains complex objects instead of just strings or integers so as to emulate a real world scenario, where your dropdown list might contain models instead of just basic variables.
+        </p>
+		
+		<p>
+			We're adding a run function to the Angular app so as to allow us to fire a <b>documentClicked</b> event. When the user clicks on the document, we're broadcasting that to any other Angular listeners, which we're using to hide the dropdown. We want the dropdown to hide when the user has clicked anywhere on the document.
+		</p>
+		
+		<p>
+			The directive itself is relatively lengthy. First, we're defining that the directive should be restricted to element usage alone (via the <b>restrict</b> property's "E" value). We're also creating an isolated scope for the directive which contains a placeholder value (just text, as specified via the @ symbol), a list of objects (two-way binding via =), a selected value (another two-way binding) and finally the name of the property on our complex objects which should be shown on the dropdown. This allows us to have complex objects passed into the dropdown without any hardcoding of values. There are two variables we're setting on the scope: <b>isPlaceholder</b> and <b>listVisible</b>. The first is true if the user has not yet selected a value, and the second indicates whether or not the dropdown is in an expanded state. We've added three functions, too: <b>select</b>, <b>isSelected</b> and <b>show</b>. The select function is the click handler for each item, and sets the selected item on the scope. The isSelected function determines if the passed item is selected, and the show function expands the dropdown. We're hooking into the <b>documentClicked</b> event to determine if we need to close the dropdown, and finally, we're watching for changes on the <b>selected</b> scope variable so as to update the displayed value at the top of the rendered dropdown.
+		</p>
+        
+        <h3>CSS</h3>
+        
+        <pre>
+@height:40px;
+@spacing:10px;
+@placeholder-colour:#AAA;
+@select-colour:#2875C7;
+@font-size:14px;
+@border-colour:#DDD;
+
+.vertical-centre (@height) {
+	height:@height;
+	line-height:@height !important;
+	display:inline-block;
+	vertical-align:middle;
+}
+
+dropdown {
+	float:left;
+	display:block;
+	width:250px;
+	
+	>div {
+		float:left;
+		width:100%;
+		
+		>div.dropdown-display {
+			float:left;
+			width:100%;
+			background:white;
+			height:@height;
+			cursor:pointer;
+			border:solid 1px @border-colour;
+			box-sizing:border-box;
+			
+			@icon-width:14px;
+			>* {
+				float:left;
+				height:100%;
+				.vertical-centre(@height);
+			}
+			
+			>span {
+				font-size:@font-size;
+				width:100%;
+				position:relative;
+				box-sizing:border-box;
+				padding-right:@icon-width+@spacing*2;
+				padding-left:@spacing;
+				
+				&.placeholder {
+					color:@placeholder-colour;
+				}
+			}
+			
+			>i {
+				position:relative;
+				width:@icon-width;
+				margin-left:(@spacing+@icon-width)*-1;
+				font-size:1.125em;
+				font-weight:bold;
+				padding-right:@spacing;
+				text-align:right;
+			}
+		}
+
+		>div.dropdown-list {
+			float:left;
+			width:100%;
+			position:relative;
+			width:100%;
+			transform:scale(1, 0);
+			transition:transform ease 250ms;
+			
+			>div {
+				position:absolute;
+				width:100%;
+				z-index:2;
+				cursor:pointer;
+				background:white;
+				
+				>div {
+					float:left;
+					width:100%;
+					padding:0 @spacing;
+					font-size:@font-size;
+					box-sizing:border-box;
+					border:solid 1px @border-colour; border-top:none;
+					
+					@icon-width:20px;
+					
+					&:hover {
+						background:#F0F0F0;
+					}
+					
+					&.selected {
+						background:@select-colour;
+						color:white;
+					}
+					
+					>* {
+						.vertical-centre(@height);
+					}
+					
+					>span {
+						float:left;
+						width:100%;
+						position:relative;
+						padding-right:@icon-width+@spacing;
+						box-sizing:border-box;
+						color:inherit;
+					}
+					
+					>i {
+						float:left;
+						width:@icon-width;
+						margin-left:@icon-width*-1;
+						display:none;
+					}
+					
+					&.selected>i {
+						display:inline-block;
+					}
+				}
+			}
+		}
+	}
+
+	>div.show>div.dropdown-list {
+		transform:scale(1, 1);
+	}
+}
+		</pre>
+        
+        <p>
+            The first few lines define some variables and mixins that we'll be using for the rest of the CSS rules. Of note is the <b>vertical-centre</b> mixin, which allows us to centre anything vertically if we know the height. After that, we're just setting up the look and feel of the dropdown. The <b>dropdown-list</b> class shows how I'm doing the animation to show and hide the dropdown list, which is <b>scale</b> operation. I'm animating on the transform instead of height because of mobile compatibility. There are four main transitions that a browser does really well: opacity, translate, scale and rotate. On a mobile device, using transition with height will result in poor performance, but transform scale works much, much better.
+        </p>
+        
+        <h3>Conclusion</h3>
+        
+        <p>
+            And that's it! As I mentioned above, I've put together a demo page which shows off the dropdown in its final form. You can see it <a href="http://chrisharrington.github.io/demos/dropdown.html" target="_blank">here</a>. Thanks for reading!
+        </p>
+    </body>
+</html>

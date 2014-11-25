@@ -41,7 +41,7 @@
 					}
 
 					>div.dropdown-list { float:left; width:100%; position:relative; width:100%; .transform(scale(1, 0)); .transition(-webkit-transform ease 250ms); .transition(transform ease 250ms);
-						>div { position:absolute; width:100%; z-index:2; cursor:pointer; background:white; max-height:220px;
+						>div { position:absolute; width:100%; z-index:2; cursor:pointer; background:white;
 							>div { float:left; width:100%; padding:0 @spacing; font-size:@font-size; .border-box; border:solid 1px @border-colour; border-top:none;
 								@icon-width:20px;
 								&:hover { background:#F0F0F0; }
@@ -116,7 +116,6 @@
 						};
 
 						$rootScope.$on("documentClicked", function(inner, target) {
-							console.log($(target[0]).is(".dropdown-display.clicked") || $(target[0]).parents(".dropdown-display.clicked").length > 0);
 							if (!$(target[0]).is(".dropdown-display.clicked") && !$(target[0]).parents(".dropdown-display.clicked").length > 0)
 								scope.$apply(function() {
 									scope.listVisible = false;
