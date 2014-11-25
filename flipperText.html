@@ -44,7 +44,7 @@
 		
 		<pre>
 &lt;flipper flipped="flipped" horizontal&gt;
-	&lt;front"&gt;
+	&lt;front&gt;
 		the front!
 	&lt;/front&gt;
 	&lt;back&gt;
@@ -179,57 +179,98 @@ app.directive("back", function() {
 		<h4>CSS</h4>
 		
 		<pre>
-.transition (@value1,@value2:X,...) { @value: ~`"@{arguments}".replace(/[\[\]]|\,\sX/g, '')`; -webkit-transition: @value; -moz-transition: @value; -ms-transition: @value; -o-transition: @value; transition: @value; }
-.transform (@value1,@value2:X,...) { @value: ~`"@{arguments}".replace(/[\[\]]|\,\sX/g, '')`; transform:@value; -ms-transform:@value; -webkit-transform:@value; -o-transform:@value; -moz-transform:@value; }
-.transform-style(@style:preserve-3d) { transform-style:@style; -webkit-transform-style:@style; -moz-transform-style:@style; -ms-transform-style:@style; }
-.perspective(@amount: 1000px) { perspective:@amount; -webkit-perspective:@amount; -moz-perspective:@amount; -ms-perspective:@amount; }
 .tile { color:white; padding:15px; box-sizing:border-box; -moz-box-sizing:border-box; }
 		
-flipper { float:left; width:250px; height:250px; margin-right:15px; display:block; .perspective;
-	span { color:white; }
-	&gt;div.flipper { float:left; width:100%; height:100%; position:relative; .transform-style(preserve-3d);
-		.front, .back { float:left; display:block; width:100%; height:100%; backface-visibility:hidden; position:absolute; top:0; left:0; .transform-style(preserve-3d); .transition(transform ease 500ms, -webkit-transform ease 500ms); }
+flipper {
+    float:left;
+    width:250px;
+    height:250px;
+    margin-right:15px;
+    display:block;
+    perspective:1000;
+    
+    span {
+        color:white;
+    }
+    
+    &gt;div.flipper {
+        float:left;
+        width:100%;
+        height:100%;
+        position:relative;
+        transform-style:preserve-3d;
+        
+        .front, .back {
+            float:left;
+            display:block;
+            width:100%;
+            height:100%;
+            backface-visibility:hidden;
+            position:absolute;
+            top:0;
+            left:0;
+            transform-style:preserve-3d;
+            transition:transform ease 500ms;
+        }
 
-		.front {
-			z-index:2;
-			background:#19489E;
+        .front {
+            z-index:2;
+            background:#19489E;
 
-			/* front tile styles go here! */
-		}
+            /* front tile styles go here! */
+        }
 
-		.back {
-			background:#9E1919;
+        .back {
+            background:#9E1919;
 
-			/* back tile styles go here! */
-		}
-	}
+            /* back tile styles go here! */
+        }
+    }
 }
 
 flipper[horizontal] {
-	.front { .transform(rotateY(0deg)); }
-	.back { .transform(rotateY(-180deg)); }
+    .front {
+        transform:rotateY(0deg);
+    }
 
-	div.flipper.flipped {
-		.front { .transform(rotateY(180deg)); }
-		.back { .transform(rotateY(0deg)); }
-	}
+    .back {
+        transform:rotateY(-180deg);
+    }
+
+    div.flipper.flipped {
+        .front {
+            transform:rotateY(180deg);
+        }
+
+        .back {
+            transform:rotateY(0deg);
+        }
+    }
 }
 
 flipper[vertical] {
-	.front { .transform(rotateX(0deg)); }
-	.back { .transform(rotateX(-180deg)); }
+    .front {
+        transform:rotateX(0deg);
+    }
 
-	div.flipper.flipped {
-		.front { .transform(rotateX(180deg)); }
-		.back { .transform(rotateX(0deg)); }
-	}
+    .back {
+        transform:rotateX(-180deg);
+    }
+
+    div.flipper.flipped {
+        .front {
+            transform:rotateX(180deg);
+        }
+
+        .back {
+            transform:rotateX(0deg);
+        }
+    }
 }
 		</pre>
 		
 		<p>
-			The first five lines of the CSS define some helpful LESS CSS mixins that we're using throughout the rest of the flipper CSS code. They're
-			mainly there to allow us to quickly build CSS rules without having to type out each vendor prefix, as some of the animation and transform
-			methods are not an official standard yet. You'll note that I'm referencing my custom directives in the CSS, which is no problem; the browser
+			I've left out a bunch of the vendor-specific CSS rules for brevity's sake. The <a href="http://chrisharrington.github.io/demos/flipper.html" target="_blank">demo</a> page has the full CSS rules to make the flipper work in all browsers, though, so if you need to see them, check it out. You'll note that I'm referencing my custom directives in the CSS, which is no problem; the browser
 			doesn't care what HTML tag we're using and will apply styles regardless.
 		</p>
 		

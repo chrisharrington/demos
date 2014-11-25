@@ -40,7 +40,7 @@
 						>i { position:relative; width:@icon-width; margin-left:(@spacing+@icon-width)*-1; font-size:1.125em; font-weight:bold; padding-right:@spacing; text-align:right; }
 					}
 
-					>div.dropdown-list { float:left; width:100%; position:relative; width:100%; .transform(scale(1, 0)); .transition(transform ease 250ms, -webkit-transform ease 250ms);
+					>div.dropdown-list { float:left; width:100%; position:relative; width:100%; .transform(scale(1, 0)); .transition(-webkit-transform ease 250ms); .transition(transform ease 250ms);
 						>div { position:absolute; width:100%; z-index:2; cursor:pointer; background:white; max-height:220px;
 							>div { float:left; width:100%; padding:0 @spacing; font-size:@font-size; .border-box; border:solid 1px @border-colour; border-top:none;
 								@icon-width:20px;
