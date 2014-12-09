@@ -1,1 +1,538 @@
-!function(){"use strict";var e="undefined"!=typeof window?window:global;if("function"!=typeof e.require){var t={},n={},r=function(e,t){return{}.hasOwnProperty.call(e,t)},i=function(e,t){var n,r,i=[];n=/^\.\.?(\/|$)/.test(t)?[e,t].join("/").split("/"):t.split("/");for(var o=0,s=n.length;s>o;o++)r=n[o],".."===r?i.pop():"."!==r&&""!==r&&i.push(r);return i.join("/")},o=function(e){return e.split("/").slice(0,-1).join("/")},s=function(t){return function(n){var r=o(t),s=i(r,n);return e.require(s,t)}},a=function(e,t){var r={id:e,exports:{}};return n[e]=r,t(r.exports,s(e),r),r.exports},c=function(e,o){var s=i(e,".");if(null==o&&(o="/"),r(n,s))return n[s].exports;if(r(t,s))return a(s,t[s]);var c=i(s,"./index");if(r(n,c))return n[c].exports;if(r(t,c))return a(c,t[c]);throw new Error('Cannot find module "'+e+'" from "'+o+'"')},l=function(e,n){if("object"==typeof e)for(var i in e)r(e,i)&&(t[i]=e[i]);else t[e]=n},u=function(){var e=[];for(var n in t)r(t,n)&&e.push(n);return e};e.require=c,e.require.define=l,e.require.register=l,e.require.list=u,e.require.brunch=!0}}(),require.register("actions/base",function(e,t,n){n.exports=function(e){this.all=function(t){return{type:e.ALL,content:t}},this.create=function(t){return{type:e.CREATE,content:t}},this.update=function(t){return{type:e.UPDATE,content:t}},this.remove=function(t){return{type:e.REMOVE,content:t}}}}),require.register("actions/todo/all",function(e,t,n){"use strict";t("constants");n.exports={}}),require.register("config",function(e,t,n){n.exports={fixtures:!0}}),require.register("constants/components",function(e,t,n){"use strict";n.exports={todo:"todo-component"}}),require.register("constants/index",function(e,t,n){"use strict";n.exports={components:t("./components"),todo:t("./todo")}}),require.register("constants/todo",function(e,t,n){n.exports={change:"todos-changed",all:"all-todos",create:"create-todo",update:"update-todo",remove:"remove-todo"}}),require.register("controller",function(e,t,n){"use strict";var r=t("react"),i=t("pages/management"),o=t("pages/companyHierarchies/companyHierarchies"),s=t("pages/equipmentProfile/equipmentProfile"),a=Backbone.Marionette.Controller.extend({initialize:function(e){this.container=e.container},management:function(){r.renderComponent(new i,this.container)},companyHierarchies:function(){r.renderComponent(new o,this.container)},equipmentProfile:function(e,t){_.contains(["details","cylinder-configuration","driver-data","site-data","devices"],t)||(window.location.hash="/equipment-profile/"+e+"/details"),r.renderComponent(new s({name:e.replace(/_/g," "),tab:t}),this.container)}});n.exports=a}),require.register("dispatcher",function(e,t,n){"use strict";var r=t("flux").Dispatcher;n.exports=new r}),require.register("emitter",function(e,t,n){var r=t("eventEmitter");n.exports=new r}),require.register("initialize",function(e,t){"use strict";t("stores");var n=t("react"),r=t("pages/todo");$(function(){n.render(new r,$("#app")[0])})}),require.register("pages/todo/index",function(e,t,n){"use strict";var r=t("react"),i=t("underscore"),o=t("./list"),s=t("./modal"),a=t("dispatcher"),c=t("emitter"),l=t("constants").todo;n.exports=r.createClass({displayName:"exports",getInitialState:function(){return{todos:[]}},componentWillMount:function(){c.on(l.changed,function(e){this.setState({todos:e})}.bind(this))},componentDidMount:function(){a.dispatch({type:l.all})},componentsWillUnmount:function(){c.off(l.all)},create:function(){this.refs.create.show()},renderList:function(e){return r.createElement(o,{todos:i.filter(this.state.todos,function(t){return t.isComplete===e})})},render:function(){return r.createElement("div",{className:"container"},r.createElement("div",{className:"row"},r.createElement("div",{className:"col-md-8"},r.createElement("h2",null,"Todo List")),r.createElement("div",{className:"col-md-4"},r.createElement("button",{type:"button",className:"btn btn-primary pull-right spacing-top",onClick:this.create},"New Task"))),r.createElement("div",{className:"row"},r.createElement("div",{className:"col-md-6"},r.createElement("h3",{className:"spacing-bottom"},"Incomplete"),this.renderList(!1)),r.createElement("div",{className:"col-md-6"},r.createElement("h3",{className:"spacing-bottom"},"Complete"),this.renderList(!0))),r.createElement(s,{ref:"create"}))}})}),require.register("pages/todo/list/index",function(e,t,n){"use strict";var r=t("underscore"),i=t("./item");n.exports=React.createClass({displayName:"exports",renderItems:function(){return r.map(this.props.todos,function(e){return React.createElement(i,{todo:e})})},render:function(){return React.createElement("ul",{className:"list-group"},this.renderItems())}})}),require.register("pages/todo/list/item",function(e,t,n){"use strict";var r=t("constants").todo,i=t("dispatcher");n.exports=React.createClass({displayName:"exports",toggle:function(){this.props.todo.isComplete=!this.props.todo.isComplete,i.dispatch({type:r.update,content:this.props.todo})},render:function(){return React.createElement("li",{className:"list-group-item pointer",onClick:this.toggle},this.props.todo.name)}})}),require.register("pages/todo/modal",function(e,t,n){"use strict";var r=t("react"),i=t("dispatcher"),o=t("emitter"),s=t("constants").todo;n.exports=r.createClass({displayName:"exports",getInitialState:function(){return{visible:!1,value:""}},componentDidMount:function(){this.$el=$(this.getDOMNode()),this.$el.on("hidden.bs.modal",this.reset),o.on(s.changed,function(){this.$el.modal("hide")}.bind(this))},componentWillUnmount:function(){o.off(s.changed)},show:function(){this.$el.modal("show")},reset:function(){this.setState({value:""})},save:function(){i.dispatch({type:s.create,content:{name:this.state.value,isComplete:!1}})},onChange:function(e){this.setState({value:e.target.value})},render:function(){return r.createElement("div",{className:"modal fade",tabIndex:"-1",role:"dialog","aria-hidden":"true"},r.createElement("div",{className:"modal-dialog modal-sm"},r.createElement("div",{className:"modal-content"},r.createElement("div",{className:"modal-header"},r.createElement("button",{type:"button",className:"close","data-dismiss":"modal"},r.createElement("span",{"aria-hidden":"true"},"×"),r.createElement("span",{className:"sr-only"},"Close")),r.createElement("h3",{className:"modal-title"},"New Task")),r.createElement("div",{className:"modal-body"},r.createElement("input",{placeholder:"Task name...",type:"text",value:this.state.value,onChange:this.onChange})),r.createElement("div",{className:"modal-footer"},r.createElement("div",{className:"row"},r.createElement("div",{className:"col col-md-12"},r.createElement("button",{type:"button",className:"btn btn-primary pull-right",onClick:this.save},"Save"),r.createElement("button",{type:"button",className:"btn btn-default pull-right spacing-right",onClick:this.reset,"data-dismiss":"modal"},"Close")))))))}})}),require.register("stores/base",function(e,t,n){"use strict";{var r=t("underscore"),i=t("emitter"),o=t("dispatcher");t("constants")}n.exports=function(e,t){function n(){i.emit(t.changed,this._collection)}this._url=e,this._collection=[],$.get(this._url).then(function(e){this._collection=e,n.call(this)}.bind(this)),o.register(function(e){switch(e.type){case t.all:this._all();break;case t.update:this._update(e.content);break;case t.create:this._create(e.content)}}.bind(this)),this._all=function(){n.call(this)}.bind(this),this._update=function(e){var t=r.find(this._collection,function(t){return t.id===e.id});for(var i in t)t[i]=e[i];n.call(this)},this._create=function(e){e.id=r.max(this._collection,function(e){return e.id}).id+1,this._collection.push(e),n.call(this)}}}),require.register("stores/index",function(e,t,n){n.exports={todo:t("stores/todo")}}),require.register("stores/todo",function(e,t,n){var r=t("./base"),i=t("constants").todo;n.exports=new r("fixtures/todos.json",i)}),require.register("utilities/errorHandler",function(e,t,n){var r=t("underscore");n.exports={handle:function(e){var t=e.all(),n=e.validate(),i=0,o="";return r.each(n,function(e){t[e.key]=!0,o=1===++i?e.message:"Please fix the outlined fields."}),{flags:t,message:o,any:i>0}}}}),require.register("utilities/validation",function(e,t,n){n.exports={required:function(e){return void 0!==e&&""!==e},phone:function(e){return e&&(e=e.replace(/[\D]/g,"")),void 0===e||10===e.length},email:function(e){return new RegExp(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/).test(e)},positiveNumber:function(e){return void 0===e||""===e?!0:(e=parseInt(e),!isNaN(e)&&e>=1)}}});
+(function(/*! Brunch !*/) {
+  'use strict';
+
+  var globals = typeof window !== 'undefined' ? window : global;
+  if (typeof globals.require === 'function') return;
+
+  var modules = {};
+  var cache = {};
+
+  var has = function(object, name) {
+    return ({}).hasOwnProperty.call(object, name);
+  };
+
+  var expand = function(root, name) {
+    var results = [], parts, part;
+    if (/^\.\.?(\/|$)/.test(name)) {
+      parts = [root, name].join('/').split('/');
+    } else {
+      parts = name.split('/');
+    }
+    for (var i = 0, length = parts.length; i < length; i++) {
+      part = parts[i];
+      if (part === '..') {
+        results.pop();
+      } else if (part !== '.' && part !== '') {
+        results.push(part);
+      }
+    }
+    return results.join('/');
+  };
+
+  var dirname = function(path) {
+    return path.split('/').slice(0, -1).join('/');
+  };
+
+  var localRequire = function(path) {
+    return function(name) {
+      var dir = dirname(path);
+      var absolute = expand(dir, name);
+      return globals.require(absolute, path);
+    };
+  };
+
+  var initModule = function(name, definition) {
+    var module = {id: name, exports: {}};
+    cache[name] = module;
+    definition(module.exports, localRequire(name), module);
+    return module.exports;
+  };
+
+  var require = function(name, loaderPath) {
+    var path = expand(name, '.');
+    if (loaderPath == null) loaderPath = '/';
+
+    if (has(cache, path)) return cache[path].exports;
+    if (has(modules, path)) return initModule(path, modules[path]);
+
+    var dirIndex = expand(path, './index');
+    if (has(cache, dirIndex)) return cache[dirIndex].exports;
+    if (has(modules, dirIndex)) return initModule(dirIndex, modules[dirIndex]);
+
+    throw new Error('Cannot find module "' + name + '" from '+ '"' + loaderPath + '"');
+  };
+
+  var define = function(bundle, fn) {
+    if (typeof bundle === 'object') {
+      for (var key in bundle) {
+        if (has(bundle, key)) {
+          modules[key] = bundle[key];
+        }
+      }
+    } else {
+      modules[bundle] = fn;
+    }
+  };
+
+  var list = function() {
+    var result = [];
+    for (var item in modules) {
+      if (has(modules, item)) {
+        result.push(item);
+      }
+    }
+    return result;
+  };
+
+  globals.require = require;
+  globals.require.define = define;
+  globals.require.register = define;
+  globals.require.list = list;
+  globals.require.brunch = true;
+})();
+require.register("actions/base", function(exports, require, module) {
+module.exports = function(constants) {
+	this.all = function(content) {
+		return {
+			type: constants.ALL,
+			content: content
+		};
+	};
+	
+	this.create = function(content) {
+		return {
+			type: constants.CREATE,
+			content: content
+		};
+	};
+	
+	this.update = function(content) {
+		return {
+			type: constants.UPDATE,
+			content: content
+		};
+	};
+	
+	this.remove = function(content) {
+		return {
+			type: constants.REMOVE,
+			content: content
+		};
+	};
+};
+});
+
+require.register("actions/todo/all", function(exports, require, module) {
+"use strict";
+
+var constants = require("constants");
+
+module.exports = {
+      
+};
+});
+
+require.register("config", function(exports, require, module) {
+module.exports = {
+	fixtures: true
+};
+});
+
+require.register("constants/components", function(exports, require, module) {
+"use strict";
+
+module.exports = {
+    todo: "todo-component"
+};
+});
+
+require.register("constants/index", function(exports, require, module) {
+"use strict";
+
+module.exports = {
+    components: require("./components"),
+    todo: require("./todo")
+};
+});
+
+require.register("constants/todo", function(exports, require, module) {
+module.exports = {
+    change: "todos-changed",
+    
+    all: "all-todos",
+    create: "create-todo",
+    update: "update-todo",
+    remove: "remove-todo"
+};
+});
+
+require.register("controller", function(exports, require, module) {
+/* jshint node: true */
+"use strict";
+
+var React = require("react"),
+    Management = require("pages/management"),
+    CompanyHierarchies = require("pages/companyHierarchies/companyHierarchies"),
+	EquipmentProfile = require("pages/equipmentProfile/equipmentProfile");
+
+var Controller = Backbone.Marionette.Controller.extend({
+    initialize: function (options) {
+        this.container = options.container;
+    },
+
+    management: function () {
+        React.renderComponent(new Management(), this.container);
+    },
+    
+    companyHierarchies: function() {
+        React.renderComponent(new CompanyHierarchies(), this.container);
+    },
+	
+	equipmentProfile: function(name, tab) {
+		if (!_.contains(["details", "cylinder-configuration", "driver-data", "site-data", "devices"], tab))
+			window.location.hash = "/equipment-profile/" + name + "/details";
+		
+		React.renderComponent(new EquipmentProfile({
+			name: name.replace(/_/g, " "),
+			tab: tab
+		}), this.container);
+	}
+});
+
+module.exports = Controller;
+});
+
+require.register("dispatcher", function(exports, require, module) {
+/* jshint node: true */
+"use strict";
+
+var Dispatcher = require("flux").Dispatcher;
+
+module.exports = new Dispatcher();
+});
+
+require.register("emitter", function(exports, require, module) {
+var EventEmitter = require("eventEmitter");
+
+module.exports = new EventEmitter();
+});
+
+require.register("initialize", function(exports, require, module) {
+/** @jsx React.DOM */
+/* jshint node: true */
+"use strict";
+
+require("stores");
+
+var React = require("react"),
+    Todo = require("pages/todo");
+
+$(function () {
+    React.render(new Todo(), $("#app")[0]);
+});
+});
+
+require.register("pages/todo/index", function(exports, require, module) {
+/** @jsx React.DOM */
+/* jshint node: true */
+"use strict";
+
+var React = require("react"),
+    _ = require("underscore"),
+    
+    List = require("./list"),
+    Modal = require("./modal"),
+    
+    dispatcher = require("dispatcher"),
+    emitter = require("emitter"),
+    constants = require("constants").todo;
+
+module.exports = React.createClass({displayName: 'exports',
+    getInitialState: function() {
+        return {
+            todos: []
+        }  
+    },
+
+    componentWillMount: function() {
+        emitter.on(constants.changed, function(todos) {
+            this.setState({ todos: todos });
+        }.bind(this));
+    },
+    
+    componentDidMount: function() {
+        dispatcher.dispatch({ type: constants.all });
+    },
+    
+    componentsWillUnmount: function() {
+        emitter.off(constants.all);
+    },
+    
+    create: function() {
+        this.refs.create.show();
+    },
+    
+    renderList: function(complete) {
+        return React.createElement(List, {todos: _.filter(this.state.todos, function(x) { return x.isComplete === complete; })});
+    },
+    
+    render: function() {
+        return React.createElement("div", {className: "container"}, 
+            React.createElement("div", {className: "row"}, 
+                React.createElement("div", {className: "col-md-8"}, 
+                    React.createElement("h2", null, "Todo List")
+                ), 
+                React.createElement("div", {className: "col-md-4"}, 
+                    React.createElement("button", {type: "button", className: "btn btn-primary pull-right spacing-top", onClick: this.create}, "New Task")
+                )
+            ), 
+                    
+            React.createElement("div", {className: "row"}, 
+                React.createElement("div", {className: "col-md-6"}, 
+                    React.createElement("h3", {className: "spacing-bottom"}, "Incomplete"), 
+                    this.renderList(false)
+                ), 
+                React.createElement("div", {className: "col-md-6"}, 
+                    React.createElement("h3", {className: "spacing-bottom"}, "Complete"), 
+                    this.renderList(true)
+                )
+            ), 
+            
+            React.createElement(Modal, {ref: "create"})
+        );
+    }
+});
+});
+
+require.register("pages/todo/list/index", function(exports, require, module) {
+/** @jsx React.DOM */
+/* jshint node: true */
+"use strict";
+
+var _ = require("underscore"),
+    Item = require("./item");
+
+module.exports = React.createClass({displayName: 'exports',
+    renderItems: function() {
+        return _.map(this.props.todos, function(todo) {
+            return React.createElement(Item, {todo: todo});
+        });
+    },
+    
+    render: function() {
+        return React.createElement("ul", {className: "list-group"}, 
+            this.renderItems()
+        );
+    } 
+});
+});
+
+require.register("pages/todo/list/item", function(exports, require, module) {
+/** @jsx React.DOM */
+/* jshint node: true */
+"use strict";
+
+var constants = require("constants").todo,
+    dispatcher = require("dispatcher");
+
+module.exports = React.createClass({displayName: 'exports',
+    toggle: function() {
+        this.props.todo.isComplete = !this.props.todo.isComplete;
+        dispatcher.dispatch({ type: constants.update, content: this.props.todo });
+    },
+    
+    render: function() {
+        return React.createElement("li", {className: "list-group-item pointer", onClick: this.toggle}, this.props.todo.name); 
+    } 
+});
+});
+
+require.register("pages/todo/modal", function(exports, require, module) {
+/** @jsx React.DOM */
+"use strict";
+
+var React = require("react"),
+    
+    dispatcher = require("dispatcher"),
+    emitter = require("emitter"),
+    constants = require("constants").todo;
+
+module.exports = React.createClass({displayName: 'exports',
+    getInitialState: function() {
+        return {
+            visible: false,
+            value: ""
+        };
+    },
+    
+    componentDidMount: function () {
+        this.$el = $(this.getDOMNode());
+        this.$el.on("hidden.bs.modal", this.reset);
+        
+        emitter.on(constants.changed, function() {
+            this.$el.modal("hide");
+        }.bind(this));
+    },
+    
+    componentWillUnmount: function() {
+        emitter.off(constants.changed);
+    },
+
+    show: function () {
+        this.$el.modal("show");
+    },
+
+    reset: function() {
+        this.setState({ value: "" });
+    },
+    
+    save: function() {
+        dispatcher.dispatch({ type: constants.create, content: { name: this.state.value, isComplete: false }});
+    },
+    
+    onChange: function(e) {
+        this.setState({ value: e.target.value });
+    },
+    
+    render: function() {
+		return React.createElement("div", {className: "modal fade", tabIndex: "-1", role: "dialog", 'aria-hidden': "true"}, 
+            React.createElement("div", {className: "modal-dialog modal-sm"}, 
+                React.createElement("div", {className: "modal-content"}, 
+                    React.createElement("div", {className: "modal-header"}, 
+                        React.createElement("button", {type: "button", className: "close", 'data-dismiss': "modal"}, 
+                            React.createElement("span", {'aria-hidden': "true"}, "×"), 
+                            React.createElement("span", {className: "sr-only"}, "Close")
+                        ), 
+                        React.createElement("h3", {className: "modal-title"}, "New Task")
+                    ), 
+                    React.createElement("div", {className: "modal-body"}, 
+                        React.createElement("input", {placeholder: "Task name...", type: "text", value: this.state.value, onChange: this.onChange})
+                    ), 
+                    React.createElement("div", {className: "modal-footer"}, 
+						React.createElement("div", {className: "row"}, 
+							React.createElement("div", {className: "col col-md-12"}, 
+								React.createElement("button", {type: "button", className: "btn btn-primary pull-right", onClick: this.save}, "Save"), 
+                                React.createElement("button", {type: "button", className: "btn btn-default pull-right spacing-right", onClick: this.reset, 'data-dismiss': "modal"}, "Close")
+							)
+						)
+                    )
+                )
+            )
+        );
+    }
+});
+});
+
+require.register("stores/base", function(exports, require, module) {
+"use strict";
+
+var _ = require("underscore"),
+    emitter = require("emitter"),
+    dispatcher = require("dispatcher"),
+    constants = require("constants");
+
+module.exports = function(url, constants) {
+    this._url = url;
+    this._collection = [];
+    
+    $.get(this._url).then(function(data) {
+        this._collection = data;
+        _notify.call(this);
+    }.bind(this));
+    
+    dispatcher.register(function(payload) {
+        switch (payload.type) {
+            case constants.all:
+                this._all();
+                break;
+                
+            case constants.update:
+                this._update(payload.content);
+                break;
+                
+            case constants.create:
+                this._create(payload.content);
+                break;
+        }
+    }.bind(this));
+    
+    this._all = function() {
+        _notify.call(this);
+    }.bind(this);
+    
+    this._update = function(content) {
+        var found = _.find(this._collection, function(x) { return x.id === content.id; });
+        for (var name in found)
+            found[name] = content[name];
+        _notify.call(this);
+    };
+    
+    this._create = function(content) {
+        content.id = _.max(this._collection, function(x) { return x.id; }).id + 1;
+        this._collection.push(content);
+        _notify.call(this);
+    }
+    
+    function _notify() {
+        emitter.emit(constants.changed, this._collection);
+    }
+};
+});
+
+require.register("stores/index", function(exports, require, module) {
+module.exports = {
+    todo: require("stores/todo")
+};
+});
+
+require.register("stores/todo", function(exports, require, module) {
+var Base = require("./base"),
+    constants = require("constants").todo;
+
+module.exports = new Base("fixtures/todos.json", constants);
+});
+
+require.register("utilities/errorHandler", function(exports, require, module) {
+var _ = require("underscore");
+
+module.exports = {
+	handle: function(model) {
+		var result = {}, flags = model.all(), errors = model.validate(), count = 0, message = "";
+		_.each(errors, function(error) {
+			flags[error.key] = true;
+			message = ++count === 1 ? error.message : "Please fix the outlined fields.";
+		});
+		
+		return { flags: flags, message: message, any: count > 0 };
+	}
+}
+});
+
+;require.register("utilities/validation", function(exports, require, module) {
+module.exports = {
+	required: function(value) {
+		return value !== undefined && value !== "";
+	},
+	
+	phone: function(value) {
+		if (value)
+			value = value.replace(/[\D]/g, "");
+		return value === undefined || value.length === 10;
+	},
+	
+	email: function(value) {
+		return new RegExp(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/).test(value);
+	},
+	
+	positiveNumber: function(value) {
+		if (value === undefined || value === "")
+			return true;
+		
+		value = parseInt(value);
+		return !isNaN(value) && value >= 1;
+	}
+}
+});
+
+;
+//# sourceMappingURL=app.js.map
