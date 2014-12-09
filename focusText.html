@@ -8,11 +8,11 @@
         <h2>Angular JS Focus Text</h2>
         
         <p>
-            Today, I'm going to talk about how to create a focus text box control using <a href="http://angularjs.org" target="_blank">Angular JS</a>, <a href="http://lesscss.org/" target="_blank">LESS CSS</a>, and <a href="https://fortawesome.github.io/Font-Awesome/" target="_blank">Font Awesome</a>. The directive should replace inputs of type text and password, and provides some relatively fancy feedback to the user as to which input is focused. I'm going to assume you're at least halfway familiar with these tools, but if you're not, I suggest you take a look using the links above. The dropdown itself is an Angular JS directive which is styled using LESS CSS to provide some fancy open and close animations. You can see it <a href="http://chrisharrington.github.com/demos/focus.html" target="_blank">here</a>.
+            Today, I'm going to talk about how to create a focus text box control using <a href="http://angularjs.org" target="_blank">Angular JS</a>, <a href="http://lesscss.org/" target="_blank">LESS CSS</a>, and <a href="https://fortawesome.github.io/Font-Awesome/" target="_blank">Font Awesome</a>. The directive should replace inputs of type text and password, and provides some relatively fancy feedback to the user as to which input is focused. I'm going to assume you're at least halfway familiar with these tools, but if you're not, I suggest you take a look using the links above. You can see it <a href="http://chrisharrington.github.com/demos/focus.html" target="_blank">here</a>.
         </p>
         
         <p>
-			I'm going to go over the three separate sections: HTML, JavaScript and CSS. In the HTML section, I'll show how you can add the directive to your site quickly. I'll also explain some of what's going on in the directive's HTML. Next, I'll talk about the JavaScript and how to set up an Angular JS app, controller and directive. I'll also explain how the directive ties into the controller. Finally, I'll walk through the CSS and describe how exactly I'm performing the focus animations.
+			I'm going to split the article up into three separate sections: HTML, JavaScript and CSS. In the HTML section, I'll show how you can add the directive to your site quickly. I'll also explain some of what's going on in the directive's HTML. Next, I'll talk about the JavaScript and how to set up an Angular JS app, controller and directive. I'll also explain how the directive ties into the controller. Finally, I'll walk through the CSS and describe how exactly I'm performing the focus animations.
 		</p>
         
         <p>
@@ -24,7 +24,7 @@
         <h4>Directive Usage</h4>
 
         <pre>
-&lt;text placeholder="Name..." ng-model="name"&gt;&lt;/dropdown&gt;
+&lt;text placeholder="Name..." ng-model="name"&gt;&lt;/text&gt;
         </pre>
 		
 		<p>Here's an example of how you can use the text directive. The <b>placeholder</b> attribute works just as it would for a regular input control, providing text to show before the user entered anything. The <b>ng-model</b> built-in Angular JS directive allows for binding the value of the input to a controller variable. In our case above, the input's value is bound to a controller's <b>name</b> variable.
@@ -59,7 +59,6 @@ var app = angular.module("demo", []);
 
 app.controller("textDemo", function($scope) {
 	$scope.value = "";
-	$scope.error = "";
 });
 
 app.directive("text", function() {
@@ -167,7 +166,7 @@ text {
 		</pre>
         
         <p>
-			The first few lines define some variables and mixins that we'll be using for the rest of the CSS rules. Of note is the <b>vertical-centre</b> mixin, which allows us to centre anything vertically if we know the height. After that, we're just setting up the look and feel of the focus text box. For positioning, we're moving the focus bar up a pixel so as to cover up the lower border on the text box. There are two animations that are occurring when a text box gains focus: first, we're spreading the focus bar across the bottom of the input, and second, we're fading the background of the input to a blue (or red, if error prone). The first is accomplished using the <b>transform:scale</b>b> rule. Transforming the scale to (0, 1) indicates that the width of the element should be rendered as zero, while the height should be 100%, which is our default. When focusing, the scale changes to (1, 1), which indicates the width should jump back up to 100%. It's animated because we've got a <b>transition</b> set for the <b>transform</b> property. The background fade is accomplished in much the same manner, adding a <b>transition</b> to the <b>background</b> property of the input element.
+			The first few lines define some variables and mixins that we'll be using for the rest of the CSS rules. Of note is the <b>vertical-centre</b> mixin, which allows us to centre anything vertically if we know the height. After that, we're just setting up the look and feel of the focus text box. For positioning, we're moving the focus bar up a pixel so as to cover up the lower border on the text box. There are two animations that are occurring when a text box gains focus: first, we're spreading the focus bar across the bottom of the input, and second, we're fading the background of the input to a blue (or red, if error prone). The first is accomplished using the <b>transform:scale</b> rule. Transforming the scale to (0, 1) indicates that the width of the element should be rendered as zero, while the height should be 100%, which is our default. When focusing, the scale changes to (1, 1), which indicates the width should jump back up to 100%. It's animated because we've got a <b>transition</b> set for the <b>transform</b> property. The background fade is accomplished in much the same manner, adding a <b>transition</b> to the <b>background</b> property of the input element.
         </p>
 		
 		<p>
@@ -177,7 +176,7 @@ text {
         <h3>Conclusion</h3>
         
         <p>
-            And that's it! As I mentioned above, I've put together a demo page which shows off the dropdown in its final form. You can see it <a href="http://chrisharrington.github.io/demos/dropdown.html" target="_blank">here</a>. Thanks for reading!
+            And that's it! As I mentioned above, I've put together a demo page which shows off the text box in its final form. You can see it <a href="http://chrisharrington.github.io/demos/focus.html" target="_blank">here</a>. Thanks for reading!
         </p>
     </body>
 </html>
