@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>React JS and Flux Todo Tutorial</title>
+    </head>
+    <body>
+        <h1>React JS and Flux Todo Tutorial</h1>
+        
+        <p>I'm going to talk about how to create a simple todo application using React JS and the Flux architecture. React JS is making some waves in the community recently due to its alleged performance increases over other heavy favourites (like Angular JS), especially when it comes to writing out lists. I'm not so concerned with performance, but I am interested in how to write an application that's easy for the user to use while at the same time being quick to get off the ground.</p>
+        
+        <p>Flux is a method of retrieving data from your server API while maintaining a strict decoupling of components on your client side. It utilizes a one-way communication protocol so as to maintain a separation of concerns. The todo application uses Flux to retrieve data from a mocked out server API.</p>
+        
+        <p>React JS and Flux go together pretty well, as it was architected that way, but they're by no means dependent upon one another. As a result, I'm going to split this article up into the React JS piece, which will go over how to create views and best practices, followed by a detailed look into how I'm getting data out of my mocked server API via Flux.</p>
+        
+        <p>I've put a demo of the todo application in action, but prepare to be disappointed, as it's really very straightforward. If you'd like to check it out, head <a href="http://chrisharrington.github.io/demos/react-todo" target="_blank">here</a>. Of more interest might be the full source code for the todo application, which I've made available on GitHub. Check it out <a href="https://github.com/chrisharrington/react-todo" target="_blank">here</a>.</p>
+        
+        <h2>React JS</h2>
+        
+        <p>First, if you've never heard of <a href="https://facebook.github.io/react/" target="_blank">React JS</a>, it's a performant view renderer made by the Facebook guys. A lot of the heavyweight contenders for MVVM frameworks have a hard time rendering large amounts of data, like in lists and such. React doesn't have that problem, as it renders only what's changed. For example, if a user is viewing a list of 100 items rendered with React, and he or she changes the third one down somehow, only that item gets rerendered, leaving the other 99 items unchanged. It also uses what Facebook calls a "virtual DOM" for some increased performance by writing out a full render virtually, and then checking the difference between the virtual render and what's actually on the DOM and creating a patch. React uses JSX files (optionally) to write views, which means that JavaScript and HTML can live in a single file. It's a bit of a paradigm shift and takes a little getting used to. You don't have to use JSX to write React views, but it's much easier than spelling out which components to render, so I'd suggest using it.</p>
+        
+        <p>React works off of classes. To render some HTML, first, you need to create a React class, which describes what to render. Here's an example of a simple React class.</p>
+        
+        <pre>
+var HelloWorld = React.createClass({
+    render: function() {
+        return &lt;div&gt;Hello, world!&lt;/div&gt;;
+    }
+});
+
+React.render(new HelloWorld(), document.body);
+        </pre>
+        
+        <p>First, we're creating our React class, called <b>HelloWorld</b>. In it, we specify one function: render. It's what gets called when we want to render the HTML inside, like, for example, on the bottom line of the snippet. You'll notice that the render function in our class contains HTML; this is where JSX comes into play. It allows us to write HTML inside our JavaScript files instead of placing them in separate templates. The last line in the snippet indicates that we want our <b>HelloWorld</b> class to be rendered into the document's body.</p>
+        
+        <h3>Props</h3>
+        
+        <p>So what happens when we want to pass in some data to our React classes? The example above doesn't provide for any sort of mechanism for that, but this one does.</p>
+        
+        <pre>
+var HelloWorld = React.createClass({
+    render: function() {
+        return &lt;div&gt;Hello, {this.props.name}!&lt;/div&gt;;
+    }
+});
+
+React.render(new HelloWorld({ name: "Chris Harrington" }), document.body);
+        </pre>
+        
+        <p>Here, we're introducing the <b>props</b> argument in the React class, which are used specifically to pass data into a React view. Any changes to to a prop variable will trigger a rerender of the appropriate portion of the view. Those changes can come from within the view itself, or from the parent view, or any child views that our view has. This is pretty handy, as it allows us to pass around some data between various views and have it all stay in sync. In the snippet above, I'm passing in my name to the <b>HelloWorld</b> class, which gets rendered inside the div using the <b>props</b> variable.</p>
+
+        <h3>State</h3>
+        
+        <pre>
+var HelloWorld = React.createClass({
+    getInitialState: function() {
+        return {
+            counter: 0
+        };
+    },
+    
+    increment: function() {
+        this.setState({ counter: this.state.counter++ });
+    },
+
+    render: function() {
+        return &lt;div&gt;
+            &lt;div&gt;{this.state.counter}&lt;/div&gt;
+            &lt;button onClick={this.state.increment}&gt;Increment!&lt;/button&gt;
+        &lt;/div&gt;;
+    }
+});
+
+React.render(new HelloWorld(), document.body);
+        </pre>
+        
+        <p>This snippet introduces the other portion of a React class: <b>state</b>. The state property of a React class allows us to keep track of internal changes to the view. Just like props, any changes to state will trigger a rerender of the appropriate elements in the view, with one condition: you have to call the <b>setState</b> method, as seen in the <b>increment</b> function on the class. Always use setState! Without it, your changes won't be reflected on your view, which is the whole point of using React in the first place. The <b>getInitialState</b> function is required when using internal state. It indicates to the view what the initial state should be. Make sure to include this function even if your state is empty to begin with; an empty state is still a state.</b></p>
+        
+        <h3>Nested Views</h3>
+        
+        <p>One of the things that makes React so easy to use is the concept of nesting views. We're able to render React classes from within other React classes, as such.</p>
+        
+        <pre>
+var FancyButton = React.createClass({
+    render: function() {
+        return &lt;button onClick={this.props.onClick}&gt;
+            &lt;i className={"fa " + this.props.icon}&gt;&lt;/i&gt;
+            &lt;span&gt;{this.props.text}&lt;/span&gt;
+        &lt;/button&gt;
+    }
+});
+
+var HelloWorld = React.createClass({
+    getInitialState: function() {
+        return {
+            counter: 0
+        };
+    },
+    
+    increment: function() {
+        this.setState({ counter: this.state.counter++ });
+    },
+
+    render: function() {
+        return &lt;div&gt;
+            &lt;div&gt;{this.state.counter}&lt;/div&gt;
+            &lt;FancyButton text="Increment!" icon="fa-arrow-circle-o-up" onClick={this.increment} /&gt;
+        &lt;/div&gt;;
+    }
+});
+        </pre>
+        
+        <p>Here, we've abstracted the button to increment the counter into a separate React class, passing in the text, an icon class (via Font Awesome) and a click handler. This illustrates how props can be assigned via nested classes.</p>
+
+        <p><b>Note:</b> Because "class" is a restricted key word in JavaScript, writing out your CSS classes on a React class's HTML is accomplished using the "className" text. You can see that in the snippet above, where I'm setting the CSS class for the icon in the FancyButton.</p>
+        
+        <h3>User-built View Functions</h3>
+        
+        <p>There are a few other functions that you should be aware of when writing React views.</p>
+        
+        <ul>
+            <li><b>componentWillMount</b> - This function is called when the view is added to the parent view. It's fired every time this happens, so it's a good candidate for doing some initial setup of your view, or for hooking up event handlers and such. It'll come in handy for implementing our Flux architecture later on.</li>
+            <li><b>componentWillUnmount</b> - Opposite of <b>componentWillMount</b>. Fired when the view is no longer rendered in a parent. Useful for unhooking event handlers.</li>
+        </ul>
+
+        <p>Take a look at the <a href="https://facebook.github.io/react/docs/component-specs.html" target="_blank">React JS documentation</a> for a full list of methods you can implement.</p>
+
+        <h3>Predefined View Functions</h3>
+
+        <ul>
+            <li><b>setState</b> - As mentioned above, this is the method you call to set the internal state of your React view. If you set the state directly (ie, this.state.foo = "bar") your view won't rerender. As a rule of thumb, always use setState, as such: this.setState({ foo: "bar" }).</li>
+            <li><b>forceUpdate</b> - This is a convenience method to force a rerender of the view. It's useful for instances where you're updating some variables inside your view that aren't part of props or state.</li>
+        </ul>
+
+        <p>There are other methods that you can make use of on the view, but these are the two I've used the most. For a full list, see the <a href="https://facebook.github.io/react/docs/component-api.html" target="_blank">React JS documentation</a>.</p>
+
+        <p>Those are the basics behind React JS. Now I'm going to go over how the Flux architecture works, and then we'll move on to the todo application.</p>
+
+        <h2>Flux</h2>
+
+        <p>The Flux architecture is what Facebook recommends to use as a workflow for retrieving data on the client side from a store of some sort on a remote server. It's a uni-directional data flow. At a high level, a user initiates an action, which the view handles by dispatching a request for data to a store. In turn, that store, executes the request and when the data is retrieved, emits an event saying so to all that are listening. Those listeners update their views accordingly. Here are the main components:</p>
+    
+        <ul>
+            <li><b>View</b> - The view is responsible for handling an action by a user, like retrieving a list of todo items. It does this by sending a request for data via the dispatcher.</li>
+            <li>
+                <b>Dispatcher</b> - The dispatcher has two main responsibilities:
+                <ol>
+                    <li>Registering callbacks after a dispatch. A store will register a callback with the dispatcher so that whenever an action is dispatched, the store is notified and can check to see if it needs to perform any action. For example, a TodoStore class registers with the dispatcher so that whenever an action to retrieve all todos is sent, it knows to start the process of getting the data.</li>
+                    <li>Dispatching actions to be fulfilled. A view sends an action to retrieve data via the dispatch method on the dispatcher. Any callbacks registered using the same key get notified on a dispatch. The dispatch method typically contains any payload information required, too, like an ID when retrieving a specific piece of data, for example.</li>
+                </ol>
+            </li>
+            <li>
+                <b>Store</b> - The store has two responsibilities as well.
+                <ol>
+                    <li>Waking up on a relevant dispatch to retrieve the requested data. This is accomplished via registering with the dispatcher usually when constructed.</li>
+                </ol>
+            </li>
+            <li><b>Event Emitter</b> - The event emitter is responsible for notifying subscribers after a store has completed a data retrieval action. Conversely, it also needs to be able to register observers for specific events. We're going to be using Node's event emitter in the todo application.</li>
+        </ul>
+
+        <h3>The Dispatcher</h3>
+
+        <p>The dispatcher is responsible for taking requests for action from the view and passing it on to the pertinent store (or stores). Each store will register with the dispatcher to receive updates when an action is dispatched. The constructor for a store registers a callback with the dispatcher. This means that whenever an action is dispatched, this callback gets executed, but only the actions that are pertinent to this dispatcher ever get executed. The React bower package provides a dispatcher class for us to use out of the box, so there's nothing for us to build here, fortunately. The dispatcher is the first step in the data access process on the client side.</p>
+
+        <h3>The Store</h3>
+
+        <p>The store is used to actually retrieve the data once an action has come through that indicates as such. The constructor for the store will hookup a callback function via the dispatcher's register method, which provides the one-way entry point into the store. The store then checks to see what type of action has been dispatched and, if it applies to this store, executes the appropriate method.</p>
+
+        <h3>Example</h3>
+
+        <p>Here's a quick and dirty example as to how Flux would work in a sample React application. Later on, we'll look into the todo application, which will dive into the Flux architecture a little more.</p>
+
+        <pre>
+var Count = React.createClass({
+    getInitialState: function() {
+        return {
+            items: []
+        };
+    },
+
+    componentWillMount: function() {
+        emitter.on("store-changed", function(items) {
+            this.setState({ items: items });
+        }.bind(this));
+    },
+    
+    componentDidMount: function() {
+        dispatcher.dispatch({ type: "get-all-items" });
+    },
+
+    render: function() {
+        var items = this.state.items;
+        return <div>{items.length}</div>;
+    }
+});
+
+var Store = function() {
+    dispatcher.register(function(payload) {
+        switch (payload.type) {
+            case: "get-all-items":
+                this._all();
+                break;
+        }
+    }.bind(this));
+    
+    this._all = function() {
+        $.get("/some/url", function(items) {
+            this._notify(items);
+        }.bind(this));
+    }
+    
+    this._notify = function(items) {
+        emitter.emit("store-changed", items);
+    });
+};
+
+var ItemStore = new Store();
+        </pre>
+
+        <p>Our simple view just renders the number of items in a list. On mount, it hooks into the event emitter to watch for when the store changes, and then dispatches a request to retrieve all of the todo items. The store sees this because at construct time, it registers with the dispatcher to watch for requests to get all items. When the request comes in, it performs a quick ajax request and when that returns, notifies all subscribers via the event emitter. Back on the view, the state is updated with the new item list and the view rerenders, showing the updated count.</p>
+
+        <h2>Todo Application</h2>
+
+        <p>Ok, now that we've got a pretty good handle on how to write React views and what the Flux architecture is all about, we're going to take a look at a sample todo application I've written specially for this post. If you'd like to see it in action, go <a href="http://chrisharrington.github.io/demos/react-todo" target="_blank">here</a>, or if the source code is more up your alley, you can see it <a href="https://github.com/chrisharrington/react-todo" target="_blank">here</a>.</p>
+
+        <h3>Views</h3>
+
+        <p>Lets start with the main view. The app only has a single page, so here it is.</p>
+
+        <h4>Todo</h4>
+
+        <pre>
+"use strict";
+
+var Todo = React.createClass({
+    getInitialState: function() {
+        return {
+            todos: []
+        }  
+    },
+
+    componentWillMount: function() {
+        emitter.on(constants.changed, function(todos) {
+            this.setState({ todos: todos });
+        }.bind(this));
+    },
+    
+    componentDidMount: function() {
+        dispatcher.dispatch({ type: constants.all });
+    },
+    
+    componentsWillUnmount: function() {
+        emitter.off(constants.all);
+    },
+    
+    create: function() {
+        this.refs.create.show();
+    },
+    
+    renderList: function(complete) {
+        return &lt;List todos={_.filter(this.state.todos, function(x) { return x.isComplete === complete; })} /&gt;;
+    },
+    
+    render: function() {
+        return &lt;div className="container"&gt;
+            &lt;div className="row"&gt;
+                &lt;div className="col-md-8"&gt;
+                    &lt;h1&gt;Todo List&lt;/h1&gt;
+                &lt;/div&gt;
+                &lt;div className="col-md-4"&gt;
+                    &lt;button type="button" className="btn btn-primary pull-right spacing-top" onClick={this.create}&gt;New Task&lt;/button&gt;    
+                &lt;/div&gt;
+            &lt;/div&gt;
+                    
+            &lt;div className="row"&gt;
+                &lt;div className="col-md-6"&gt;
+                    &lt;h2 className="spacing-bottom"&gt;Incomplete&lt;/h2&gt;
+                    {this.renderList(false)}
+                &lt;/div&gt;
+                &lt;div className="col-md-6"&gt;
+                    &lt;h2 className="spacing-bottom"&gt;Complete&lt;/h2&gt;
+                    {this.renderList(true)}
+                &lt;/div&gt;
+            &lt;/div&gt;
+            
+            &lt;Modal ref="create" /&gt;
+        &lt;/div&gt;;
+    }
+});
+        </pre>
+
+        <p>This is the main todo view. On mount, it's dispatching a request for all of the todo items to be retrieved. It's also hooking into a change event for the todo store so as to be notified when the store's items have been updated after the dispatched request has been successfully completed. I'm making use of Bootstrap's grid to display the complete and incomplete items. There are a couple of other classes in here that aren't displayed yet: List and Modal. The former is for rendering the actual list, and the latter is to add a new item.</p>
+
+        <h4>List</h4>
+
+        <pre>
+var List = React.createClass({
+    renderItems: function() {
+        return _.map(this.props.todos, function(todo) {
+            return &lt;Item todo={todo} /&gt;;
+        });
+    },
+    
+    render: function() {
+        return &lt;ul className="list-group"&gt;
+            {this.renderItems()}
+        &lt;/ul&gt;;
+    } 
+});
+        </pre>
+
+        <p>The list view is responsible for rendering the list of items, both complete and incomplete. It hands off to the Item class to render the actual item.</p>
+
+        <h4>Item</h4>
+
+        <pre>
+var Item = React.createClass({
+    toggle: function() {
+        this.props.todo.isComplete = !this.props.todo.isComplete;
+        dispatcher.dispatch({ type: constants.update, content: this.props.todo });
+    },
+    
+    render: function() {
+        return &lt;li className="list-group-item pointer" onClick={this.toggle}&gt;{this.props.todo.name}&lt;/li&gt;; 
+    } 
+});
+        </pre>
+
+        <p>The item class is responsible for two things: rendering the item in the list, and updating the status of an item when clicked. The li tag has an onClick handler which hands off to the toggle method which dispatches an update item request via the dispatcher. The dispatched item contains two properties: type, to indicate the event name, and content, to indicate the event payload, which in this case is the todo item itself.</p>
+
+        <h4>Modal</h4>
+
+        <pre>
+var Modal = React.createClass({
+    getInitialState: function() {
+        return {
+            value: ""
+        };
+    },
+    
+    componentDidMount: function () {
+        this.$el = $(this.getDOMNode());
+        this.$el.on("hidden.bs.modal", this.reset);
+        
+        emitter.on(constants.changed, function() {
+            this.$el.modal("hide");
+        }.bind(this));
+    },
+    
+    componentWillUnmount: function() {
+        emitter.off(constants.changed);
+    },
+
+    show: function () {
+        this.$el.modal("show");
+    },
+
+    reset: function() {
+        this.setState({ value: "" });
+    },
+    
+    save: function() {
+        dispatcher.dispatch({ type: constants.create, content: { name: this.state.value, isComplete: false }});
+    },
+    
+    onChange: function(e) {
+        this.setState({ value: e.target.value });
+    },
+    
+    render: function() {
+		return &lt;div className="modal fade" tabIndex="-1" role="dialog" aria-hidden="true"&gt;
+            &lt;div className="modal-dialog modal-sm"&gt;
+                &lt;div className="modal-content"&gt;
+                    &lt;div className="modal-header"&gt;
+                        &lt;button type="button" className="close" data-dismiss="modal"&gt;
+                            &lt;span aria-hidden="true"&gt;&times;&lt;/span&gt;
+                            &lt;span className="sr-only"&gt;Close&lt;/span&gt;
+                        &lt;/button&gt;
+                        &lt;h2 className="modal-title"&gt;New Task&lt;/h2&gt;
+                    &lt;/div&gt;
+                    &lt;div className="modal-body"&gt;
+                        &lt;input placeholder="Task name..." type="text" value={this.state.value} onChange={this.onChange} /&gt;        
+                    &lt;/div&gt;
+                    &lt;div className="modal-footer"&gt;
+						&lt;div className="row"&gt;
+							&lt;div className="col col-md-12"&gt;
+								&lt;button type="button" className="btn btn-primary pull-right" onClick={this.save}&gt;Save&lt;/button&gt;
+                                &lt;button type="button" className="btn btn-default pull-right spacing-right" onClick={this.reset} data-dismiss="modal"&gt;Close&lt;/button&gt;
+							&lt;/div&gt;
+						&lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;;
+    }
+});
+        </pre>
+
+        <p>The modal class is ...verbose, but a lot of that is Bootstrap's boilerplate code required for a modal dialog. Once that's out of the way, there's only three things we really care about.</p>
+        
+        <ul>
+            <li><b>The text input</b> - the text input provides the user an area to enter the name for the new item. The value is bound to the modal's state's value property, and on a change, we're firing the onChange method. This is important, because without the onChange method, the value in the state of the modal wouldn't update, and the user wouldn't be able to enter any input because the state's value property never gets updated.</li>
+            <li><b>The save button</b> - the save button fires the save method, which dispatches a create action with the content set to just a name and an isComplete property (defaults to false).</li>
+            <li><b>The reset button</b> - the reset button hands off to the reset method, which resets the value of the input field so that the user is presented with an empty input box when he or she opens up the dialog a second time.</li>
+        </ul>
+
+        <p>The show method of the Modal class is interesting here because it highlights the <b>refs</b> property of the parent, which in this case is the Todo class. On the Modal definition, we're specifying a <b>ref</b> attribute ("modal"), which we can then use to find the rendered class at a later time from the parent. We're using it to show the modal dialog when the user clicks on the new item button on the Todo class.</p>
+
+        <h3>Store</h3>
+
+        <p>Here's the store used to keep track of changes to the todo list.</p>
+
+        <pre>
+var Store = function(url, constants) {
+    this._url = url;
+    this._collection = [];
+    
+    $.get(this._url).then(function(data) {
+        this._collection = data;
+        _notify.call(this);
+    }.bind(this));
+    
+    dispatcher.register(function(payload) {
+        switch (payload.type) {
+            case constants.all:
+                this._all();
+                break;
+                
+            case constants.update:
+                this._update(payload.content);
+                break;
+                
+            case constants.create:
+                this._create(payload.content);
+                break;
+        }
+    }.bind(this));
+    
+    this._all = function() {
+        _notify.call(this);
+    }.bind(this);
+    
+    this._update = function(content) {
+        var found = _.find(this._collection, function(x) { return x.id === content.id; });
+        for (var name in found)
+            found[name] = content[name];
+        _notify.call(this);
+    };
+    
+    this._create = function(content) {
+        content.id = _.max(this._collection, function(x) { return x.id; }).id + 1;
+        this._collection.push(content);
+        _notify.call(this);
+    }
+    
+    function _notify() {
+        emitter.emit(constants.changed, this._collection);
+    }
+};
+
+var TodoStore = new Store("fixtures/todos.json", require("constants").todo);
+        </pre>
+
+        <p>Right off the bat, the store is prepopulating the inner collection by retrieving the full list from the "server" (which in this case is just a fixture containing some hard coded todo items). Then, it registers a callback function with the dispatcher to keep track of any dispatched actions. Once an action comes in, we do a switch on the payload's type to determine which method to execute, then execute the method. Once the all, update or create method has completed, the notify method is called, which just emits a change event to anyone listening with the list of items.</p>
+
+        <h4>Constants</h4>
+
+        <p>Throughout the todo application, I'm making a reference to a constants object. This is just an object containing strings for each of the various actions that are flying around through the dispatcher and the event emitter. I find it convenient to keep those strings abstracted elsewhere.</p>
+
+        <h2>Conclusion</h2>
+
+        <p>And that's it! As I mentioned above, if you'd like to see the todo application in action, take a look <a href="http://chrisharrington.github.io/demos/react-todo" target="_blank">here</a>, and if you're interested in checking out the code for yourself, take a look <a href="https://github.com/chrisharrington/react-todo" target="_blank">here</a>. Thanks for reading!</p>
+    </body>
+</html
