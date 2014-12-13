@@ -7,7 +7,9 @@
     <body>
         <h1>React JS and Flux Todo Tutorial</h1>
         
-        <p>I'm going to talk about how to create a simple todo application using React JS and the Flux architecture. React JS is making some waves in the community recently due to its alleged performance increases over other heavy favourites (like Angular JS), especially when it comes to writing out lists. I'm not so concerned with performance, but I am interested in how to write an application that's easy for the user to use while at the same time being quick to get off the ground.</p>
+        <p>I'm going to talk about how to create a simple todo application using React JS and the Flux architecture. React JS is making some waves in the community recently due to its alleged performance increases over other heavy favourites (like Angular JS), especially when it comes to writing out lists. As a result, I am interested in how to write an application that's easy for the user to use while at the same time being quick to get off the ground. One of the big draws for React JS is the virtual DOM that sits behind the scenes for every view, and it's the reason why React is said to perform so well. When a view requires a rerender, the whole thing is rendered into a virtual copy of the DOM. Once that's complete, React performs a diff between the virtual DOM and the actual DOM, and applies only the changes that the comparison the diff equation indicates.</p>
+        
+        <p>So, what are you hopefully going to learn by the end of this article? You'll understand the basics of building multiple views in React, you'll see a concrete example as to how the Flux architecture provides data access, and then finally you'll see how it all comes together with a simple todo application.</p>
         
         <p>Flux is a method of retrieving data from your server API while maintaining a strict decoupling of components on your client side. It utilizes a one-way communication protocol so as to maintain a separation of concerns. The todo application uses Flux to retrieve data from a mocked out server API.</p>
         
@@ -17,7 +19,7 @@
         
         <h2>React JS</h2>
         
-        <p>First, if you've never heard of <a href="https://facebook.github.io/react/" target="_blank">React JS</a>, it's a performant view renderer made by the Facebook guys. A lot of the heavyweight contenders for MVVM frameworks have a hard time rendering large amounts of data, like in lists and such. React doesn't have that problem, as it renders only what's changed. For example, if a user is viewing a list of 100 items rendered with React, and he or she changes the third one down somehow, only that item gets rerendered, leaving the other 99 items unchanged. It also uses what Facebook calls a "virtual DOM" for some increased performance by writing out a full render virtually, and then checking the difference between the virtual render and what's actually on the DOM and creating a patch. React uses JSX files (optionally) to write views, which means that JavaScript and HTML can live in a single file. It's a bit of a paradigm shift and takes a little getting used to. You don't have to use JSX to write React views, but it's much easier than spelling out which components to render, so I'd suggest using it.</p>
+        <p>First, if you've never heard of <a href="https://facebook.github.io/react/" target="_blank">React JS</a>, it's a performance-minded view renderer made by the Facebook guys. A lot of the heavyweight contenders for MVVM frameworks have a hard time rendering large amounts of data, like in lists and such. React doesn't have that problem, as it renders only what's changed. For example, if a user is viewing a list of 100 items rendered with React, and he or she changes the third one down somehow, only that item gets rerendered, leaving the other 99 items unchanged. It also uses what Facebook calls a "virtual DOM" for some increased performance by writing out a full render virtually, and then checking the difference between the virtual render and what's actually on the DOM and creating a patch. React uses JSX files (optionally) to write views, which means that JavaScript and HTML can live in a single file. It's a bit of a paradigm shift and takes a little getting used to. You don't have to use JSX to write React views, but it's much easier than spelling out which components to render, so I'd suggest using it.</p>
         
         <p>React works off of classes. To render some HTML, first, you need to create a React class, which describes what to render. Here's an example of a simple React class.</p>
         
@@ -47,7 +49,7 @@ var HelloWorld = React.createClass({
 React.render(new HelloWorld({ name: "Chris Harrington" }), document.body);
         </pre>
         
-        <p>Here, we're introducing the <b>props</b> argument in the React class, which are used specifically to pass data into a React view. Any changes to to a prop variable will trigger a rerender of the appropriate portion of the view. Those changes can come from within the view itself, or from the parent view, or any child views that our view has. This is pretty handy, as it allows us to pass around some data between various views and have it all stay in sync. In the snippet above, I'm passing in my name to the <b>HelloWorld</b> class, which gets rendered inside the div using the <b>props</b> variable.</p>
+        <p>Here, we're introducing the <b>props</b> argument in the React class, which are used specifically to pass data into a React view. Any changes to to a prop variable will trigger a rerender of the appropriate portion of the view. Those changes can come from within the view itself, or from the parent view, or any child views that our view has. This is pretty handy, as it allows us to pass around some data between various views and have it all stay in sync. In the snippet above, I'm passing in my name to the <b>HelloWorld</b> class, which gets rendered inside the div using the props variable.</p>
 
         <h3>State</h3>
         
@@ -76,6 +78,8 @@ React.render(new HelloWorld(), document.body);
         
         <p>This snippet introduces the other portion of a React class: <b>state</b>. The state property of a React class allows us to keep track of internal changes to the view. Just like props, any changes to state will trigger a rerender of the appropriate elements in the view, with one condition: you have to call the <b>setState</b> method, as seen in the <b>increment</b> function on the class. Always use setState! Without it, your changes won't be reflected on your view, which is the whole point of using React in the first place. The <b>getInitialState</b> function is required when using internal state. It indicates to the view what the initial state should be. Make sure to include this function even if your state is empty to begin with; an empty state is still a state.</b></p>
         
+        <p>So when do you use props or state, or even just private variables? Props are used for passing data between child and parent React classes, and any changes to a prop cause an automatic rerender of the view, both parent and child. For data that's relevant only to the view and nothing else, use state. Any changes here also rerender the view. For any data that's pertinent to the class but not the view itself, you could use a private variable, but I'd still probably use state; it's what it's for.</p>
+
         <h3>Nested Views</h3>
         
         <p>One of the things that makes React so easy to use is the concept of nesting views. We're able to render React classes from within other React classes, as such.</p>
@@ -138,7 +142,7 @@ var HelloWorld = React.createClass({
 
         <h2>Flux</h2>
 
-        <p>The Flux architecture is what Facebook recommends to use as a workflow for retrieving data on the client side from a store of some sort on a remote server. It's a uni-directional data flow. At a high level, a user initiates an action, which the view handles by dispatching a request for data to a store. In turn, that store, executes the request and when the data is retrieved, emits an event saying so to all that are listening. Those listeners update their views accordingly. Here are the main components:</p>
+        <p>The Flux architecture is what Facebook recommends to use as a workflow for retrieving data on the client side from a store of some sort on a remote server. It's a unidirectional data flow. At a high level, a user initiates an action, which the view handles by dispatching a request for data to a store. In turn, that store executes the request and when the data is retrieved, emits an event saying so to all that are listening. Those listeners update their views accordingly. Here are the main components:</p>
     
         <ul>
             <li><b>View</b> - The view is responsible for handling an action by a user, like retrieving a list of todo items. It does this by sending a request for data via the dispatcher.</li>
@@ -153,9 +157,10 @@ var HelloWorld = React.createClass({
                 <b>Store</b> - The store has two responsibilities as well.
                 <ol>
                     <li>Waking up on a relevant dispatch to retrieve the requested data. This is accomplished via registering with the dispatcher usually when constructed.</li>
+                    <li>Notifying listeners of a change in the store's data after a retrieval, update or create operation. This is done via the event emitter.</li>
                 </ol>
             </li>
-            <li><b>Event Emitter</b> - The event emitter is responsible for notifying subscribers after a store has completed a data retrieval action. Conversely, it also needs to be able to register observers for specific events. We're going to be using Node's event emitter in the todo application.</li>
+            <li><b>Event Emitter</b> - The event emitter is responsible for notifying subscribers after a store has completed any data action. Conversely, it also needs to be able to register observers for specific events. We're going to be using Node's event emitter in the todo application.</li>
         </ul>
 
         <h3>The Dispatcher</h3>
@@ -164,7 +169,7 @@ var HelloWorld = React.createClass({
 
         <h3>The Store</h3>
 
-        <p>The store is used to actually retrieve the data once an action has come through that indicates as such. The constructor for the store will hookup a callback function via the dispatcher's register method, which provides the one-way entry point into the store. The store then checks to see what type of action has been dispatched and, if it applies to this store, executes the appropriate method.</p>
+        <p>The store is used to actually retrieve, update or create the data once an action has come through that indicates as such. The constructor for the store will hookup a callback function via the dispatcher's register method, which provides the one-way entry point into the store. The store then checks to see what type of action has been dispatched and, if it applies to this store, executes the appropriate method.</p>
 
         <h3>Example</h3>
 
@@ -190,7 +195,7 @@ var Count = React.createClass({
 
     render: function() {
         var items = this.state.items;
-        return <div>{items.length}</div>;
+        return &lt;div&gt;{items.length}&lt;/div&gt;;
     }
 });
 
@@ -289,7 +294,7 @@ var Todo = React.createClass({
 });
         </pre>
 
-        <p>This is the main todo view. On mount, it's dispatching a request for all of the todo items to be retrieved. It's also hooking into a change event for the todo store so as to be notified when the store's items have been updated after the dispatched request has been successfully completed. I'm making use of Bootstrap's grid to display the complete and incomplete items. There are a couple of other classes in here that aren't displayed yet: List and Modal. The former is for rendering the actual list, and the latter is to add a new item.</p>
+        <p>This is the main <b>Todo</b> view. On mount, it's dispatching a request for all of the todo items to be retrieved. It's also hooking into a change event for the todo store so as to be notified when the store's items have been updated after the dispatched request has been successfully completed. I'm making use of Bootstrap's grid to display the complete and incomplete items. There are a couple of other classes in here that aren't displayed yet: <b>List</b> and <b>Modal</b>. The former is for rendering the actual list, and the latter is to add a new item.</p>
 
         <h4>List</h4>
 
@@ -309,7 +314,7 @@ var List = React.createClass({
 });
         </pre>
 
-        <p>The list view is responsible for rendering the list of items, both complete and incomplete. It hands off to the Item class to render the actual item.</p>
+        <p>The list view is responsible for rendering the list of items, both complete and incomplete. It hands off to the <b>Item</b> class to render the actual item.</p>
 
         <h4>Item</h4>
 
@@ -326,7 +331,7 @@ var Item = React.createClass({
 });
         </pre>
 
-        <p>The item class is responsible for two things: rendering the item in the list, and updating the status of an item when clicked. The li tag has an onClick handler which hands off to the toggle method which dispatches an update item request via the dispatcher. The dispatched item contains two properties: type, to indicate the event name, and content, to indicate the event payload, which in this case is the todo item itself.</p>
+        <p>The <b>Item</b> class is responsible for two things: rendering the item in the list, and updating the status of an item when clicked. The li tag has an onClick handler which hands off to the toggle method which dispatches an update item request via the dispatcher. The dispatched item contains two properties: type, to indicate the event name, and content, to indicate the event payload, which in this case is the todo item itself.</p>
 
         <h4>Modal</h4>
 
@@ -385,7 +390,7 @@ var Modal = React.createClass({
 						&lt;div className="row"&gt;
 							&lt;div className="col col-md-12"&gt;
 								&lt;button type="button" className="btn btn-primary pull-right" onClick={this.save}&gt;Save&lt;/button&gt;
-                                &lt;button type="button" className="btn btn-default pull-right spacing-right" onClick={this.reset} data-dismiss="modal"&gt;Close&lt;/button&gt;
+								&lt;button type="button" className="btn btn-default pull-right spacing-right" onClick={this.reset} data-dismiss="modal"&gt;Close&lt;/button&gt;
 							&lt;/div&gt;
 						&lt;/div&gt;
                     &lt;/div&gt;
@@ -399,12 +404,16 @@ var Modal = React.createClass({
         <p>The modal class is ...verbose, but a lot of that is Bootstrap's boilerplate code required for a modal dialog. Once that's out of the way, there's only three things we really care about.</p>
         
         <ul>
-            <li><b>The text input</b> - the text input provides the user an area to enter the name for the new item. The value is bound to the modal's state's value property, and on a change, we're firing the onChange method. This is important, because without the onChange method, the value in the state of the modal wouldn't update, and the user wouldn't be able to enter any input because the state's value property never gets updated.</li>
+            <li><b>The text input</b> - the text input provides the user an area to enter the name for the new item. Binding input elements to a state value is one of the caveats of React which I'll go over in just a second.</li>
             <li><b>The save button</b> - the save button fires the save method, which dispatches a create action with the content set to just a name and an isComplete property (defaults to false).</li>
             <li><b>The reset button</b> - the reset button hands off to the reset method, which resets the value of the input field so that the user is presented with an empty input box when he or she opens up the dialog a second time.</li>
         </ul>
 
-        <p>The show method of the Modal class is interesting here because it highlights the <b>refs</b> property of the parent, which in this case is the Todo class. On the Modal definition, we're specifying a <b>ref</b> attribute ("modal"), which we can then use to find the rendered class at a later time from the parent. We're using it to show the modal dialog when the user clicks on the new item button on the Todo class.</p>
+        <p>The show method of the <b>Modal</b> class is interesting here because it highlights the <b>refs</b> property of the parent, which in this case is the <b>Todo</b> class. On the <b>Modal</b> definition, we're specifying a <b>ref</b> attribute ("modal"), which we can then use to find the rendered class at a later time from the parent. We're using it to show the modal dialog when the user clicks on the new item button on the <b>Todo</b> class.</p>
+
+        <h4>Data Binding</h4>
+
+        <p>Binding a view's state variable to an input is a little weird in React, at least at first. If we specify that a text field has a value as read from a state variable, we also need to specify an onChange event handler for that text field. If we don't, the user will be typing while focused on the text field and no text will show up. This is because the value of the text field is bound to a state value that doesn't ever get updated, and so no changes occur in the view. We solve this problem by setting the onChange handler so that it updates the bound state variable when the user enters information. It's a little caveat that threw me for a loop when I first started writing React views.</p>
 
         <h3>Store</h3>
 
@@ -414,11 +423,6 @@ var Modal = React.createClass({
 var Store = function(url, constants) {
     this._url = url;
     this._collection = [];
-    
-    $.get(this._url).then(function(data) {
-        this._collection = data;
-        _notify.call(this);
-    }.bind(this));
     
     dispatcher.register(function(payload) {
         switch (payload.type) {
@@ -437,21 +441,28 @@ var Store = function(url, constants) {
     }.bind(this));
     
     this._all = function() {
-        _notify.call(this);
+        $.get(this._url).then(function(data) {
+            this._collection = data;
+            _notify.call(this);
+        }.bind(this));
     }.bind(this);
     
     this._update = function(content) {
         var found = _.find(this._collection, function(x) { return x.id === content.id; });
         for (var name in found)
             found[name] = content[name];
-        _notify.call(this);
+        $.post(this._url, found).then(function() {
+            _notify.call(this);
+        }.bind(this));
     };
     
     this._create = function(content) {
         content.id = _.max(this._collection, function(x) { return x.id; }).id + 1;
         this._collection.push(content);
-        _notify.call(this);
-    }
+        $.post(this._url + "/" + content.id).then(function() {
+            _notify.call(this);
+        });
+    };
     
     function _notify() {
         emitter.emit(constants.changed, this._collection);
@@ -461,7 +472,7 @@ var Store = function(url, constants) {
 var TodoStore = new Store("fixtures/todos.json", require("constants").todo);
         </pre>
 
-        <p>Right off the bat, the store is prepopulating the inner collection by retrieving the full list from the "server" (which in this case is just a fixture containing some hard coded todo items). Then, it registers a callback function with the dispatcher to keep track of any dispatched actions. Once an action comes in, we do a switch on the payload's type to determine which method to execute, then execute the method. Once the all, update or create method has completed, the notify method is called, which just emits a change event to anyone listening with the list of items.</p>
+        <p>Right off the bat, the store registers a callback function with the dispatcher to keep track of any dispatched actions. Once an action comes in, we do a switch on the payload's type to determine which method to execute, then execute the method. Once the all, update or create method has completed, the notify method is called, which just emits a change event to anyone listening with the list of items.</p>
 
         <h4>Constants</h4>
 
