@@ -7,9 +7,12 @@
         <style type="text/css">
             * { box-sizing:border-box; }
             body { padding:30px 0; }
+            h2 { margin:0; margin-bottom:25px; }
             h3 { margin:0; padding:0; margin-bottom:12px; }
             .test-data { margin-bottom:3px; }
-            .test-data span { padding:3px 10px; background:#EEE; width:100%; float:left; }
+            .test-data span { padding:3px 10px; background:#EEE; width:100%; float:left; cursor:pointer; }
+            .test-data span:hover { background:#DDD; }
+            .test-data span.selected { background:#3F7AD9; color:white; }
             
             .time { font-weight:bold; height:26px; line-height:26px; vertical-align:middle; display:inline-block; cursor:pointer; text-decoration:underline; }
         </style>
@@ -46,11 +49,18 @@
             
             function _knockout() {
                 ko.applyBindings({
+                    selected: ko.observable(),
                     data: ko.observableArray(),
+                    
+                    select: function(item) {
+                        this.selected(item.id);
+                    },
+                    
                     run: function() {
                         var data = _buildData(),
                             date = new Date();
                         
+                        this.selected(null);
                         this.data(data);
                         $("#knockout-time").text((new Date() - date) + " ms");
                     }
@@ -64,23 +74,33 @@
                         var data = _buildData(),
                             date = new Date();
                         
+                        $scope.selected = null;
                         $scope.$$postDigest(function() {
                             $("#angular-time").text((new Date() - date) + " ms");    
                         });
                         
-                        $scope.data = data;  
+                        $scope.data = data;
+                    };
+                    
+                    $scope.select = function(item) {
+                        $scope.selected = item.id;
                     };
                 });
             }
             
             function _react() {
                 var Class = React.createClass({
+                    select: function(data) {
+                        this.props.selected = data.id;
+                        this.forceUpdate();
+                    },
+                    
                     render: function() {
                         var items = [];
                         for (var i = 0; i < this.props.data.length; i++) {
                             items.push(React.createElement("div", { className: "row" }, 
                                 React.createElement("div", { className: "col-md-12 test-data" }, 
-                                    React.createElement("span", null, this.props.data[i].label)
+                                    React.createElement("span", { className: this.props.selected === this.props.data[i].id ? "selected" : "", onClick: this.select.bind(null, this.props.data[i]) }, this.props.data[i].label)
                                 )
                             ));
                         }
@@ -93,7 +113,7 @@
                     var data = _buildData(),
                         date = new Date();
                     
-                    React.render(new Class({ data: data }), $("#react")[0]);
+                    React.render(new Class({ data: data, selected: null }), $("#react")[0]);
                     $("#react-time").text((new Date() - date) + " ms");
                 });
             }
@@ -108,6 +128,12 @@
     </head>
     <body ng-controller="controller">
         <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2>Performance Comparison for Knockout, Angular and React</h2>
+                </div>
+            </div>
+            
             <div id="knockout" class="col-md-4">
                 <div class="row">
                     <div class="col-md-7">
@@ -118,7 +144,7 @@
                 <div data-bind="foreach: data">
                     <div class="row">
                         <div class="col-md-12 test-data">
-                            <span data-bind="text: $data.label"></span>
+                            <span data-bind="click: $root.select.bind($root, $data), text: $data.label, css: { selected: $data.id === $root.selected() }"></span>
                         </div>
                     </div>
                 </div>
@@ -134,7 +160,7 @@
                 <div>
                     <div class="row" ng-repeat="item in data">
                         <div class="col-md-12 test-data">
-                            <span>{{item.label}}</span>
+                            <span ng-class="{ selected: item.id === $parent.selected }" ng-click="select(item)">{{item.label}}</span>
                         </div>
                     </div>
                 </div>
