@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>React, Angular and Knockout Comparison</title>
+    </head>
+    <body>
+        <h2>React, Angular and Knockout Comparison</h2>
+        
+        <p>I've been wanting to write an article comparing the chic front end JavaScript frameworks for a while now, and the three that come to mind to use are <a href="#" target="_blank">React</a>, <a href="#" target="_blank">Angular</a> and <a href="#" target="_blank">Knockout</a>. React's the new kid on the block and has been making waves recently due to its so-called virtual DOM, which provides faster performance than some of the other alternatives. Angular is Google's foray into the MVVM framework space and is heavier solution, providing a bunch of different functionality across a wide range of areas. Knockout has been around for a while now and up until recently, was the most well used framework.</p>
+        
+        <p>So what are you going to learn after reading this? I'm going to do a run through of each framework and provide some basic examples in each in order to give you a taste of how they all function, so you'll learn how to get an app off the ground in each framework. Then, I'll provide some basic performance testing for larger datasets in case that's what you're after.</p>
+        
+        <h3>Hello, world!</h3>
+        
+        <h4>React JS</h4>
+        
+        <p>First, if you've never heard of <a href="https://facebook.github.io/react/" target="_blank">React JS</a>, it's a performance-minded view renderer made by the Facebook guys. A lot of the heavyweight contenders for MVVM frameworks have a hard time rendering large amounts of data, like in lists and such. React doesn't have that problem, as it renders only what's changed. For example, if a user is viewing a list of 100 items rendered with React, and he or she changes the third one down somehow, only that item gets rerendered, leaving the other 99 items unchanged. It also uses what Facebook calls a "virtual DOM" for some increased performance by writing out a full render virtually, and then checking the difference between the virtual render and what's actually on the DOM and creating a patch. React uses JSX files (optionally) to write views, which means that JavaScript and HTML can live in a single file. It's a bit of a paradigm shift and takes a little getting used to. You don't have to use JSX to write React views, but it's much easier than spelling out which components to render, so I'd suggest using it.</p>
+        
+        <p>React works off of classes. To render some HTML, first, you need to create a React class, which describes what to render. Here's an example of a simple React class.</p>
+        
+        <pre>
+var HelloWorld = React.createClass({
+    render: function() {
+        return &lt;div&gt;Hello, world!&lt;/div&gt;;
+    }
+});
+
+React.render(new HelloWorld(), document.body);
+        </pre>
+        
+        <p></p>
+    </body>
+</html>
