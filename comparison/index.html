@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Comparison between React JS and Angular JS</title>
+    </head>
+    <body>
+        <h2>Comparison between React JS and Angular JS</h2>
+        
+        <p>I've been wanting to write an article comparing the latest and greatest front-end JavaScript frameworks for a while now. I'll be writing about Angular JS and React JS. Angular is the big dog in this fight, as it's been around for a while longer than React has, but React brings increased rendering performance to the table.</p>
+        
+        <p>The purpose of this article is to go over building some simple functionality using Angular and React to give you an understanding as to what it would take to get an application off the ground. It's not meant as an in-depth tutorial on either of the frameworks, but I'm hoping that after you read this, you'll have a greater understanding as to which framework is right for you to use on your next project. At the very least, you should have a grasp on how JavaScript UI frameworks operate in general.</p>
+        
+        <p>I'm going to walk through how to create the typical coding example using each of the frameworks. Once I've done that, I'll move on to some more complicated UI controls, building up our little app as we go.</p>
+        
+        <h3>Hello, world!</h3>
+        
+        <h4>Angular JS</h4>
+        
+        <p>Angular has been around for a while now, with its initial release in 2009. Since then, it's come a long way, and they're up to version 1.3.8 now, with semi-regular releases. Lately, there's been some buzz about Angular 2.0, which is going to change a lot about the framework, but it's a long way off, and is scheduled for release sometime in 2016. The current Angular version uses various attributes and custom HTML elements to provide functionality on various DOM elements. These are called <b>directives</b> and are very versatile.</p>
+        
+        <p data-height="268" data-theme-id="0" data-slug-hash="XJjWze" data-default-tab="result" data-user="chrisharrington" class='codepen'>See the Pen <a href='http://codepen.io/chrisharrington/pen/XJjWze/'>XJjWze</a> by Chris Harrington (<a href='http://codepen.io/chrisharrington'>@chrisharrington</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+        <script async src="//assets.codepen.io/assets/embed/ei.js"></script>
+        
+        <p>The set up code for Angular is a little verbose, as it requires an <b>application</b> and a <b>controller</b>, as well as definitions for any <b>directives</b> you're building. The snippet above shows how to set up an initial Angular app, then define a controller and finally build a hello world directive.</p>
+        
+        <p>Here's a breakdown of what we're doing with the JavaScript.</p>
+        
+        <ol>
+            <li>First, we're initializing the Angular app by calling <code>angular.module</code> and giving it a name. The second argument in this call is the list of dependencies our module relies on. Since we don't have any dependencies, we pass in an empty array.</li>
+            <li>Next, we're initializing the <code>testController</code> Angular controller. It's not doing anything at the moment as our directive is handling all the "heavy" lifting.</li>
+            <li>Finally, the directive is defined. All it's doing is writing out a <code>div</code> containing the hello world text.</li>
+        </ol>
+        
+        <p>An Angular app requires that the <code>ng-app</code> and <code>ng-controller</code> directives be set on various elements. Here's a rundown.</p>
+        
+        <ol>
+            <li>The <code>html</code> tag has the aforementioned <code>ng-app</code> directive applied to it, indicating that the page reflects an Angular application named "testApp".</li>
+            <li>The <code>body</code> tag is annotated with the <code>ng-controller</code> directive, which tells Angular that the controller's scope should reside within it.</li>
+            <li>Finally, we're rendering our <code>hello-world</code> directive as the only code in the body.</li>
+        </ol>
+        
+        <h4>React JS</h4>
+        
+        <p>If you've never heard of <a href="https://facebook.github.io/react/" target="_blank">React JS</a>, it's a performance-minded view renderer made by the Facebook guys. A lot of the heavyweight contenders for MVVM frameworks have a hard time rendering large amounts of data, like in lists and such. React doesn't have that problem, as it renders only what's changed. For example, if a user is viewing a list of 100 items rendered with React, and he or she changes the third one down somehow, only that item gets rerendered, leaving the other 99 items unchanged. It also uses what Facebook calls a "virtual DOM" for some increased performance by writing out a full render virtually, and then checking the difference between the virtual render and what's actually on the DOM and creating a patch. React uses JSX files (optionally) to write views, which means that JavaScript and HTML can live in a single file. It's a bit of a paradigm shift and takes a little getting used to. You don't have to use JSX to write React views, but it's much easier than spelling out which components to render, so I'd suggest using it.</p>
+
+        <p><b>Note:</b> React classes can be built in one of two ways: in raw JavaScript or in JSX, a language that combines HTML and JavaScript in one file format. I'm using JSX in the JavaScript section of the Codepen below. If you'd like some more information, <a href="https://facebook.github.io/react/docs/jsx-in-depth.html" target="_blank">here's</a> the documentation.</p>
+        
+        <p data-height="268" data-theme-id="0" data-slug-hash="ZYpExy" data-default-tab="result" data-user="chrisharrington" class='codepen'>See the Pen <a href='http://codepen.io/chrisharrington/pen/ZYpExy/'>ZYpExy</a> by Chris Harrington (<a href='http://codepen.io/chrisharrington'>@chrisharrington</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+        <script async src="//assets.codepen.io/assets/embed/ei.js"></script>
+        
+        <p>React requires that you build a class to define what HTML to render. That's what we're doing in the JavaScript section.</p>
+        
+        <ol>
+            <li>We call <code>React.createClass</code> to (unsurprisingly) create a React class. This class is what gets rendered later on to be appended into an HTMl element for the user to interact with.</li>
+            <li>The <code>createClass</code> function takes an object which needs to contain a <code>render</code> function, which is all that's in our simple class so far. It returns a very simple JSX string to write out hello world.</li>
+            <li>The last line of the JSX is used to render our hello world class into the <code>document.body</code>.</li>
+        </ol>
+        
+        <p>The HTML for the React section isn't noteworthy at all, and won't change throughout this article, so you can stop looking at it.</p>
+        
+        <h3>Injecting Data</h3>
+        
+        <h4>Angular JS</h4>
+        
+        <p>The method Angular uses to inject data into directives is via <b>scopes</b>. A scope in the Angular world is just an object which contains data for various controls, like directives and controllers. On top of that, there's a root scope object (injected with <code>$rootScope</code>) that functions as a top-level scope accessible by all other Angular components. A directive can have one of a few kinds of scope. First, there's no directive scope, which means that it uses its parent's scope (usually the controller's scope). Then, there's an isolated scope, which indicates that the directive has its own scope completely separate from the controller's scope. Typically, a controller's scope is used to inject data into a directive's isolated scope. In my experience, the isolated scope is what gets used the most. Scope properties come in three different flavours:</p>
+        
+        <ul>
+            <li>Two-way binding: Indicates that changes made on either the parent or child scope are reflected in the other. It's denoted by an equals sign (=) when building the scope.</li>
+            <li>One-way binding: Data flows only from child to parent via a function. Denoted by an ampersand (&).</li>
+            <li>Text binding. Just a string value that contains no binding information. Denoted by an at symbol (@).</li>
+        </ul>
+        
+        <p data-height="268" data-theme-id="0" data-slug-hash="LEREVv" data-default-tab="result" data-user="chrisharrington" class='codepen'>See the Pen <a href='http://codepen.io/chrisharrington/pen/LEREVv/'>LEREVv</a> by Chris Harrington (<a href='http://codepen.io/chrisharrington'>@chrisharrington</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+        <script async src="//assets.codepen.io/assets/embed/ei.js"></script>
+        
+        <p>Here, we're using a text binding to send my name into the hello world example.</p>
+        
+        <ul>
+            <li>The <code>hello-world</code> element in the HTML pane now contains a <code>name</code> attribute, which corresponds to the value defined in our isolated scope.</li>
+            <li>Our controller now has a definition of the name variable in it.</li>
+            <li>The directive template now contains a reference to the name scope variable.</li>
+            <li>We've added a scope section to our directive definition which indicates that two things: first, that the directive should create an isolated scope, and second that it should contain only the name parameter as defined by the text binding (@). Whenever this scope section exists, an isolated scope is defined.</li>
+        </ul>
+        
+        <h4>React JS</h4>
+        
+        <p>React injects data into its rendered views at construct time, be that when the root view is created or via a nested view. Inside the class, the data that's passed in is accessed via the <b>props</b> property of the current context.</p>
+        
+        <p data-height="268" data-theme-id="0" data-slug-hash="emdmJK" data-default-tab="result" data-user="chrisharrington" class='codepen'>See the Pen <a href='http://codepen.io/chrisharrington/pen/emdmJK/'>emdmJK</a> by Chris Harrington (<a href='http://codepen.io/chrisharrington'>@chrisharrington</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+        <script async src="//assets.codepen.io/assets/embed/ei.js"></script>
+        
+        <ul>
+            <li>We've added a <code>{ name: "Chris Harrington" }</code> to the creation of our <code>HelloWorld</code> class, which gets translated into the props property inside the class.</li>
+            <li>The JSX now includes a reference to <code>this.props.name</code> so we can render a personalized hello message.</li>
+        </ul>
+        
+        <h3>Event Handlers</h3>
+        
+        <h4>Angular JS</h4>
+        
+        <p>In Angular, event handlers are typically assigned to various portions of your view via directives. If you hadn't noticed by now, directives make up a large portion of what makes Angular great. They're used for practically everything. The <code>ng-click</code> directive is an attribute that can be placed on HTML elements that hooks up a click handler that already exists on the local scope.</p>
+        
+        <p data-height="268" data-theme-id="0" data-slug-hash="zxKxBm" data-default-tab="result" data-user="chrisharrington" class='codepen'>See the Pen <a href='http://codepen.io/chrisharrington/pen/zxKxBm/'>zxKxBm</a> by Chris Harrington (<a href='http://codepen.io/chrisharrington'>@chrisharrington</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+        <script async src="//assets.codepen.io/assets/embed/ei.js"></script>
+        
+        <p>So, what have we changed?</p>
+        
+        <ul>
+            <li>We've added a button to our directive template, which sets our greeting message on click. It has the <code>ng-click</code> directive set to fire the <code>greet</code> method.</li>
+            <li>The <code>link</code> section to the directive has been added. This section is fired when the directive is rendered and is used to set up things like event handlers and default values, both of which are occurring here. The <code>greeting</code> property has been set to the empty string on the scope, and we've added a basic event handler (<code>greet</code>) to handle the button click.</li>
+        </ul>
+        
+        <h4>React JS</h4>
+        
+        <p>Event handlers in React work by setting various custom attributes on the HTML elements you're building. Most of the common culprits have associated handlers.</p>
+        
+        <p data-height="268" data-theme-id="0" data-slug-hash="Kwgwgy" data-default-tab="result" data-user="chrisharrington" class='codepen'>See the Pen <a href='http://codepen.io/chrisharrington/pen/Kwgwgy/'>Kwgwgy</a> by Chris Harrington (<a href='http://codepen.io/chrisharrington'>@chrisharrington</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+        <script async src="//assets.codepen.io/assets/embed/ei.js"></script>
+        
+        <p>There's a few new things we're introducing here. The big one is the idea of <b>state</b>. Each React class has its own internal state that can't be modified by external means. You can modify the state of a directive by calling the <code>setState</code> method of the view's context. Doing so will trigger a rerender of the changed elements. You get the state properties using <code>this.state.name</code>, for example, and you can even set data this way, too, but if you do, a rerender isn't trigger. A good rule of thumb is that if you're setting data on the state, use the <code>setState</code> method.</p>
+        
+        <ul>
+            <li>The <code>getInitialState</code> function is used to determine the initial state of the view. Without it, <code>this.state</code> will return null, potentially breaking the view. If you're going to set any state during the operationg of your class, you need to add this method. In our example, we're just setting the <code>greeting</code> state propery to the empty string.</li>
+            <li>We've added a <code>greet</code> function to act as the event handler after the user has clicked on the button.</li>
+            <li>Speaking of which, we've added a button to the HTML and are using React's <code>onClick</code> event to hook up the handler, which is the <code>greet</code> function of the context.</li>
+        </ul>
+        
+        <h3>Nested Views</h3>
+        
+        <h4>Angular JS</h4>
+        
+        <p>Nested views in Angular are accomplished using multiple directives. One directive can contain a reference to another without any problems. It's worth noting that each of these directives can have their own isolated scope, and any level of nested directives will also have their own scopes.</p>
+    </body>
+</html>

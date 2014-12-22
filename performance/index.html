@@ -111,17 +111,19 @@
                 });
                 
                 $("#react-time").on("click", function() {
+                    var blah = new Class({ data: data, selected: null });
+                    
                     var data = _buildData(),
                         date = new Date();
                     
-                    React.render(new Class({ data: data, selected: null }), $("#react")[0]);
+                    React.render(blah, $("#react")[0]);
                     $("#react-time").text((new Date() - date) + " ms");
                 });
             }
             
             function _raw() {
                 $("#raw-time").on("click", function() {
-                    
+                    document.getElementById("raw").innerHTML = "";
                     var data = _buildData(),
                         date = new Date(),
                         template = $("#raw-template").html(),
