@@ -111,12 +111,10 @@
                 });
                 
                 $("#react-time").on("click", function() {
-                    var blah = new Class({ data: data, selected: null });
-                    
                     var data = _buildData(),
                         date = new Date();
                     
-                    React.render(blah, $("#react")[0]);
+                    React.render(new Class({ data: data, selected: null }), $("#react")[0]);
                     $("#react-time").text((new Date() - date) + " ms");
                 });
             }
