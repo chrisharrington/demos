@@ -111,12 +111,12 @@
                 });
 
                 $("#run-react").on("click", function() {
-                    var built = new Class({ data: data, selected: null });
+                    
 
                     var data = _buildData(),
                         date = new Date();
 
-                    React.render(built, $("#react")[0]);
+                    React.render(new Class({ data: data, selected: null }), $("#react")[0]);
                     $("#run-react").text((new Date() - date) + " ms");
                 });
             }
@@ -160,7 +160,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-                    <h2>Performance Comparison for Knockout, Angular and React</h2>
+                    <h2>Performance Comparison for React, Angular and Knockout</h2>
                 </div>
             </div>
 

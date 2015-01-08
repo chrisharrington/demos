@@ -15,7 +15,7 @@
 
     <p>This is by no means a scientific test as to how well each framework performs. That said, though, I tried to make it equal across all frameworks, so to that end, I'm going to walk through how I wrote each framework's test below. Basically, I generate a list of 1000 items that get rendered into a <code>ul</code> tag, and then measure how long it takes by measuring dates before and after a render. The user is able to select an item in the list, too, so it's not just a straight html render; there are events bound. It's not a perfect test by any stretch, but it gets the point across.</p>
 
-    <p><b>Note:</b> If you're interested in this section at all, you're going to need at least a passing understanding as to how to build something in each of the frameworks. Tutorials on Knockout, Angular and React is outside the scope of this article.</p>
+    <p><b>Note:</b> If you're interested in this section at all, you're going to need at least a passing understanding as to how to build something in each of the frameworks. Tutorials on React, Angular and Knockout are outside the scope of this article.</p>
 
     <h4>React JS</h4>
 
@@ -53,7 +53,7 @@ $("#run-react").on("click", function() {
 });
     </pre>
 
-    <p>So as a quick run down, when the user initiates a run, I built up a new list of 1000 items, make a note of the current time, render the React class, and then measure how long it took and write that time to the page. The class itself is straightforward, with a quick look in the render function to push all of the created <code>li</code> tags into an array, and then rendering that array into a containing <code>div</code>. There's an <code>onClick</code> binding set on the <code>li</code> to select it, too.</p>
+    <p>So as a quick run down, when the user initiates a run, I build up a new list of 1000 items, make a note of the current time, render the React class, and then measure how long it took and write that time to the page. The class itself is straightforward, with a quick loop in the render function to push all of the created <code>li</code> tags into an array, and then rendering that array into a containing <code>div</code>. There's an <code>onClick</code> binding set on the <code>li</code> to select it, too.</p>
 
     <h4>Angular JS</h4>
 
@@ -129,7 +129,7 @@ ko.applyBindings({
 }, $("#knockout")[0]);
     </pre>
 
-    <p>Here, we're using an anonymous template for the Knockout bindings. We set up a click, text and css binding for indicating which item is selected, and a <code>foreach</code> loop to actually do the rendering.</p>
+    <p>Here, we're using an anonymous template for the Knockout bindings. We set up a click, text and css binding for indicating which item is selected, and a <code>foreach</code> loop in the Knockout html to actually do the rendering.</p>
     
     <h4>Raw DOM Manipulation</h4>
     
@@ -259,18 +259,18 @@ $("#run-raw").on("click", function() {
                 <td>40 ms</td>
             </tr>
             <tr>
-                <td>Average</td>
-                <td>83.40 ms</td>
-                <td>265.20 ms</td>
-                <td>334.80 ms</td>
-                <td>37.30 ms</td>
+                <td><b>Average</b></td>
+                <td><b>83.40 ms</b></td>
+                <td><b>265.20 ms</b></td>
+                <td><b>334.80 ms</b></td>
+                <td><b>37.30 ms</b></td>
             </tr>
         </tbody>
     </table>
     
     <h3>Analysis</h3>
     
-    <p>So on average, doing everything by hand is the fastest way to render a list of 1000 items, as the raw DOM manipulation handily beats out the heavier frameworks. The first run is the quickest because there's nothing to erase from the container. I'm not terribly surprised by these numbers, as a framework brings a lot more to the table than performance: maintability, modularity and readability are all good reasons to use a framework, and those things aren't represented in the numbers above. Of the three frameworks, React is by far the speediest. The second run in the React test is the slowest run out of all the tests I performed, and it happens every time. I'm not 100% sure on this, but I suspect it's because of how React's diff algorithm works with the virtual DOM. The second time through, there's a bunch of new stuff in the DOM that needs to be compared against, while every subsequent run after that already has a starting point to work from. For what it's worth, if we remove the second run from the React test, the new average works out to 30.11 ms, which beats out the raw DOM manipulation numbers. Angular and Knockout are in the same league, although Angular is still faster by a fair margin.</p>
+    <p>So on average, doing everything by hand is the fastest way to render a list of 1000 items, as the raw DOM manipulation handily beats out the heavier frameworks. The first run is the quickest because there's nothing to erase from the container. I'm not terribly surprised by these numbers, as a framework brings a lot more to the table than performance: maintability, modularity and readability are all good reasons to use a framework, and those things aren't represented in the numbers above. Of the three frameworks, React is by far the speediest. The second run in the React test is the slowest run out of all the tests I performed, and it happens every second time I run the test from a fresh page reload. I'm not 100% sure on this, but I suspect it's because of how React's diff algorithm works with the virtual DOM. The second time through, there's a bunch of new stuff in the DOM that needs to be compared against, while every subsequent run after that already has a starting point to work from. For what it's worth, if we remove the second run from the React test, the new average works out to 30.11 ms, which beats out the raw DOM manipulation numbers. Angular and Knockout are in the same league, although Angular is still faster by a fair margin.</p>
     
     <p>If performance is your primary motivation, React is a good choice for a framework, especially if you're showing large amounts of data. I understand that this example is relatively contrived, as nobody in their right mind is going to be showing 1000 items all at once, but I feel it's indicative as to which framework performs better as a whole.</p>
     
