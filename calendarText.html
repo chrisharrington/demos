@@ -5,37 +5,19 @@
         <title>Angular JS Calendar</title>
     </head>
     <body>
-        <h2>Angular JS Calendar</h2>
+        <h1>Angular JS Calendar</h1>
         
-        <p>
-            Today, I'm going to talk about how to create a calendar control using <a href="http://angularjs.org" target="_blank">Angular JS</a>, 
-            <a href="http://lesscss.org/" target="_blank">LESS CSS</a>, <a href="https://fortawesome.github.io/Font-Awesome/" target="_blank">Font Awesome</a> and <a href="http://momentjs.com/" target="_blank">
-            Moment</a>. I'm going to assume you're at least halfway familiar with these tools, but if you're not, I suggest you 
-            take a look using the links above. The calendar itself will be an Angular JS directive that allows the user to select a date,
-            which is set on a controller's property. I've styled the calendar, and I'll include that style in this tutorial, but
-            you can obviously feel free to tweak how it looks to your heart's content. If you're the kind of reader that prefers
-            to view a completed product and just check the source yourself, I've put together a demo page which shows off the calendar.
-            You can see it <a href="http://chrisharrington.github.com/demos/calendar.html" target="_blank">here</a>.
-        </p>
+        <p>Today, I'm going to talk about how to create a calendar control using <a href="http://angularjs.org" target="_blank">Angular JS</a>, <a href="http://lesscss.org/" target="_blank">LESS CSS</a>, <a href="https://fortawesome.github.io/Font-Awesome/" target="_blank">Font Awesome</a> and <a href="http://momentjs.com/" target="_blank">Moment</a>. I'm going to assume you're at least halfway familiar with these tools, but if you're not, I suggest you take a look using the links above. The calendar itself will be an Angular JS directive that allows the user to select a date, which is set on a controller's property. I've styled the calendar, and I'll include that style in this tutorial, but you can obviously feel free to tweak how it looks to your heart's content. If you're the kind of reader that prefers to view a completed product and just check the source yourself, I've put together a demo page which shows off the calendar. You can see it <a href="http://chrisharrington.github.com/demos/calendar.html" target="_blank">here</a>.</p>
         
         <img src="https://i.imgur.com/4m50fpQ.png" alt="sample" width="298" height="257" />
         
-        <p>
-			I'm going to break down the write up into a couple of different sections. First, the HTML. It's pretty straightforward,
-            as it's just the calendar directive HTML. Then, we'll walk through the JavaScript code, which shows how I'm using Angular
-            JS to update the directive's state which, in turn, updates the calendar view. Finally, I'll describe what I'm doing
-			with each of the CSS rules that style the calendar. While most of the CSS is simple, there are few things I'm going to go
-            over that might be new to the reader.
-		</p>
+        <p>I'm going to break down the write up into a couple of different sections. First, the HTML. It's pretty straightforward, as it's just the calendar directive HTML. Then, we'll walk through the JavaScript code, which shows how I'm using Angular JS to update the directive's state which, in turn, updates the calendar view. Finally, I'll describe what I'm doing with each of the CSS rules that style the calendar. While most of the CSS is simple, there are few things I'm going to go over that might be new to the reader.</p>
         
-        <p>
-			<b>Note:</b> The CSS shown here might not match up with exactly what you see on the demo page because I want the demo to look at least
-			halfway decent with some pretty styling. For the most part, though, I'm going to try to keep the CSS on the tutorial as bare as possible.
-		</p>
+        <p><b>Note:</b> The CSS shown here might not match up with exactly what you see on the demo page because I want the demo to look at least halfway decent with some pretty styling. For the most part, though, I'm going to try to keep the CSS on the tutorial as bare as possible.</p>
 		
-		<h3>HTML</h3>
+		<h2>HTML</h2>
         
-        <h4>Directive Usage</h4>
+        <h3>Directive Usage</h3>
 
         <pre>
 &lt;calendar selected="day"&gt;&lt;/calendar&gt;
@@ -43,11 +25,9 @@
 		
 		<p>In this case, the variable on the controller that gets updated with the selected date would be "day".</p>
         
-        <h4>Calendar Template</h4>
+        <h3>Calendar Template</h3>
         
-        <p>
-            Because the calendar template is quite large, I've extracted it and placed it in its own HTML file, which is the best practice.
-        </p>
+        <p>Because the calendar template is quite large, I've extracted it and placed it in its own HTML file, which is the best practice.</p>
         
         <pre>
 &lt;div class="header"&gt;
@@ -69,26 +49,15 @@
 &lt;/div&gt;
         </pre>
         
-        <p>
-            Most of this is straightforward, but there are a couple of things I should go over. First, we're using Font Awesome
-            to render the arrows that allow the user to change months. Font Awesome uses a series of CSS classes to perform
-            the rendering, which in our case are "fa-angle-left" and "fa-angle-right", with a base "fa" class, as well. You don't have to use
-            the I tag, but it's how the Font Awesome guys show all their examples, so I tend to follow along.
-        </p>
+        <p>Most of this is straightforward, but there are a couple of things I should go over. First, we're using Font Awesome to render the arrows that allow the user to change months. Font Awesome uses a series of CSS classes to perform the rendering, which in our case are "fa-angle-left" and "fa-angle-right", with a base "fa" class, as well. You don't have to use the I tag, but it's how the Font Awesome guys show all their examples, so I tend to follow along.</p>
         
-        <p>
-            The next line shows how we're using Angular JS and Moment to render the currently selected day's month. The month variable is where we're storing the day's month value. We're using Moment's format function to render just the month name. Note that the month is a separate variable from the selected date because the user can select a date outside of the selected month, using the trailing and leading weeks. For example, the end of a month might be on a Wednesday, but we pad out the rest of the week using days from the next month.
-        </p>
+        <p>The next line shows how we're using Angular JS and Moment to render the currently selected day's month. The month variable is where we're storing the day's month value. We're using Moment's format function to render just the month name. Note that the month is a separate variable from the selected date because the user can select a date outside of the selected month, using the trailing and leading weeks. For example, the end of a month might be on a Wednesday, but we pad out the rest of the week using days from the next month.</p>
         
-        <p>
-            The last HTML section contains the rendering for each of the weeks and days. We're looping through the list of weeks (as shown using Angular's ng-repeat directive), and then another loop inside that to render the days of the week (another ng-repeat). The syntax for the ng-repeat directive is a little strange, but straightforward. "week in weeks" indicates that we want to iterate over weeks, and assign each item in the weeks array to the week variable. It's similar to the <a href="https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach" target="_blank">array.forEach</a> method. Then, we're setting a couple of styles for each day depending on the state of our directive. For example, we want the selected day and today to have a different style from regular days. We accomplish this using Angular's ng-class directive, which sets a CSS class on the element based on a truthy variable. Finally, we're setting up an ng-click directive which allows us to select a day.
-        </p>
+        <p>The last HTML section contains the rendering for each of the weeks and days. We're looping through the list of weeks (as shown using Angular's ng-repeat directive), and then another loop inside that to render the days of the week (another ng-repeat). The syntax for the ng-repeat directive is a little strange, but straightforward. "week in weeks" indicates that we want to iterate over weeks, and assign each item in the weeks array to the week variable. It's similar to the <a href="https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach" target="_blank">array.forEach</a> method. Then, we're setting a couple of styles for each day depending on the state of our directive. For example, we want the selected day and today to have a different style from regular days. We accomplish this using Angular's ng-class directive, which sets a CSS class on the element based on a truthy variable. Finally, we're setting up an ng-click directive which allows us to select a day.</p>
         
-        <h3>JavaScript</h3>
+        <h2>JavaScript</h2>
         
-        <p>
-            Here's the Angular code for setting up the calendar directive, as well as the controller for our test page. To reduce confusion, I would break out the controller and directive into separate files, as is Angular best practice. For brevity's sake, I've included all the script in one section.
-        </p>
+        <p>Here's the Angular code for setting up the calendar directive, as well as the controller for our test page. To reduce confusion, I would break out the controller and directive into separate files, as is Angular best practice. For brevity's sake, I've included all the script in one section.</p>
         
         <pre>
 var app = angular.module("demo", []);
@@ -167,11 +136,9 @@ app.directive("calendar", function() {
 });
         </pre>
         
-        <p>
-            First, we're setting up the Angular application for the demo. Then, we set up the controller for the page, and finally, we create the calendar directive. The only thing we're doing in the controller is setting the day variable the calendar sends its selected day to. The calendar directive itself is a little more complex. First, we set a starting value for the selected day, based on whether or not the controller's day is set yet. If it isn't, we just use today's date. We use Moment to set the time to midnight, and then generate the current start date for the calendar's initial month. Then we create the month by calling the _buildMonth function, which sets a list of weeks on the scope. That, in turn, calls the _buildWeek function, which does the same thing for days. The day object contains utility properties which indicate various things, like whether the current day comes before the selected month, or if the day is today. Finally, we add some methods to the scope that allow the user to change months and select a day. The select function is trivial; it just sets the scope's selected variable to the passed in day. The previous and next methods decrement and increment the month, respectively, and then rebuild the current month.
-        </p>
+        <p>First, we're setting up the Angular application for the demo. Then, we set up the controller for the page, and finally, we create the calendar directive. The only thing we're doing in the controller is setting the day variable the calendar sends its selected day to. The calendar directive itself is a little more complex. First, we set a starting value for the selected day, based on whether or not the controller's day is set yet. If it isn't, we just use today's date. We use Moment to set the time to midnight, and then generate the current start date for the calendar's initial month. Then we create the month by calling the _buildMonth function, which sets a list of weeks on the scope. That, in turn, calls the _buildWeek function, which does the same thing for days. The day object contains utility properties which indicate various things, like whether the current day comes before the selected month, or if the day is today. Finally, we add some methods to the scope that allow the user to change months and select a day. The select function is trivial; it just sets the scope's selected variable to the passed in day. The previous and next methods decrement and increment the month, respectively, and then rebuild the current month.</p>
         
-        <h3>CSS</h3>
+        <h2>CSS</h2>
         
         <pre>
 .vertical-centre (@height) {
@@ -292,18 +259,12 @@ calendar {
 }
         </pre>
         
-        <p>
-            The first few lines define a few helpful mixins using LESS CSS. The first allows us to centre elements vertically, presuming we have the height of the wrapping element. The second sets the box-sizing property, which Firefox doesn't support without the -moz- prefix.
-        </p>
+        <p>The first few lines define a few helpful mixins using LESS CSS. The first allows us to centre elements vertically, presuming we have the height of the wrapping element. The second sets the box-sizing property, which Firefox doesn't support without the -moz- prefix.</p>
         
-        <p>
-            Next, we're setting some variables related to styling and spacing that are used more than once. If you want to change the colour, for example, the secondary-colour variable is what you need to update. The rest is just standard styling to make the calendar look somewhat pretty and spacing stuff to make sure it's aligned properly.
-        </p>
+        <p>Next, we're setting some variables related to styling and spacing that are used more than once. If you want to change the colour, for example, the secondary-colour variable is what you need to update. The rest is just standard styling to make the calendar look somewhat pretty and spacing stuff to make sure it's aligned properly.</p>
         
-        <h3>Conclusion</h3>
+        <h2>Conclusion</h2>
         
-        <p>
-            And that's it! As I mentioned above, I've put together a demo page which shows off the calendar in its final form. You can see it <a href="http://chrisharrington.github.io/demos/calendar.html" target="_blank">here</a>. Thanks for reading!
-        </p>
+        <p>And that's it! As I mentioned above, I've put together a demo page which shows off the calendar in its final form. You can see it <a href="http://chrisharrington.github.io/demos/calendar.html" target="_blank">here</a>. Thanks for reading!</p>
     </body>
 </html>
