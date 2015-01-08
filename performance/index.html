@@ -13,10 +13,10 @@
             .test-data span { padding:3px 10px; background:#EEE; width:100%; float:left; cursor:pointer; }
             .test-data span:hover { background:#DDD; }
             .test-data span.selected { background:#3F7AD9; color:white; }
-            
+
             .time { font-weight:bold; height:26px; line-height:26px; vertical-align:middle; display:inline-block; cursor:pointer; text-decoration:underline; }
         </style>
-        
+
         <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
         <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.2.0/knockout-min.js"></script>
         <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.3/angular.min.js"></script>
@@ -29,12 +29,12 @@
                 _react();
                 _raw();
             });
-            
+
             _angular();
-            
+
             function _buildData(count) {
                 count = count || 1000;
-                
+
                 var adjectives = ["pretty", "large", "big", "small", "tall", "short", "long", "handsome", "plain", "quaint", "clean", "elegant", "easy", "angry", "crazy", "helpful", "mushy", "odd", "unsightly", "adorable", "important", "inexpensive", "cheap", "expensive", "fancy"];
                 var colours = ["red", "yellow", "blue", "green", "pink", "brown", "purple", "brown", "white", "black", "orange"];
                 var nouns = ["table", "chair", "house", "bbq", "desk", "car", "pony", "cookie", "sandwich", "burger", "pizza", "mouse", "keyboard"];
@@ -43,110 +43,111 @@
                     data.push({id: i+1, label: adjectives[_random(adjectives.length)] + " " + colours[_random(colours.length)] + " " + nouns[_random(nouns.length)] });
                 return data;
             }
-                        
+
             function _random(max) {
-                return Math.round(Math.random()*1000)%max;            
+                return Math.round(Math.random()*1000)%max;
             }
-            
+
             function _knockout() {
                 ko.applyBindings({
                     selected: ko.observable(),
                     data: ko.observableArray(),
-                    
+
                     select: function(item) {
                         this.selected(item.id);
                     },
-                    
+
                     run: function() {
                         var data = _buildData(),
                             date = new Date();
-                        
+
                         this.selected(null);
                         this.data(data);
-                        $("#knockout-time").text((new Date() - date) + " ms");
+                        $("#run-knockout").text((new Date() - date) + " ms");
                     }
                 }, $("#knockout")[0]);
-                
+
             }
-            
+
             function _angular(data) {
-                angular.module("test", []).controller("controller", function($scope) {            
+                angular.module("test", []).controller("controller", function($scope) {
                     $scope.run = function() {
                         var data = _buildData(),
                             date = new Date();
-                        
+
                         $scope.selected = null;
                         $scope.$$postDigest(function() {
-                            $("#angular-time").text((new Date() - date) + " ms");    
+                            $("#run-angular").text((new Date() - date) + " ms");
                         });
-                        
+
                         $scope.data = data;
                     };
-                    
+
                     $scope.select = function(item) {
                         $scope.selected = item.id;
                     };
                 });
             }
-            
+
             function _react() {
                 var Class = React.createClass({
                     select: function(data) {
                         this.props.selected = data.id;
                         this.forceUpdate();
                     },
-                    
+
                     render: function() {
                         var items = [];
                         for (var i = 0; i < this.props.data.length; i++) {
-                            items.push(React.createElement("div", { className: "row" }, 
-                                React.createElement("div", { className: "col-md-12 test-data" }, 
+                            items.push(React.createElement("div", { className: "row" },
+                                React.createElement("div", { className: "col-md-12 test-data" },
                                     React.createElement("span", { className: this.props.selected === this.props.data[i].id ? "selected" : "", onClick: this.select.bind(null, this.props.data[i]) }, this.props.data[i].label)
                                 )
                             ));
                         }
-                        
+
                         return React.createElement("div", null, items);
                     }
                 });
-                
-                $("#react-time").on("click", function() {
-                    var blah = new Class({ data: data, selected: null });
-                    
+
+                $("#run-react").on("click", function() {
+                    var built = new Class({ data: data, selected: null });
+
                     var data = _buildData(),
                         date = new Date();
-                    
-                    React.render(blah, $("#react")[0]);
-                    $("#react-time").text((new Date() - date) + " ms");
+
+                    React.render(built, $("#react")[0]);
+                    $("#run-react").text((new Date() - date) + " ms");
                 });
             }
-            
+
             function _raw() {
-                $("#raw-time").on("click", function() {
-                    document.getElementById("raw").innerHTML = "";
+                $("#run-raw").on("click", function() {
                     var data = _buildData(),
                         date = new Date(),
                         template = $("#raw-template").html(),
                         html = "";
                     
+                    document.getElementById("raw").innerHTML = "";
+
                     for (var i = 0; i < data.length; i++) {
                         var render = template;
                         render = render.replace("{{className}}", "");
                         render = render.replace("{{label}}", data[i].label);
                         html += render;
                     }
-                    
+
                     document.getElementById("raw").innerHTML = html;
-                    
+
                     $("#raw").on("click", ".test-data span", function() {
                         $("#raw .selected").removeClass("selected");
                         $(this).addClass("selected");
                     });
-                    
-                    $("#raw-time").text((new Date() - date) + " ms");
+
+                    $("#run-raw").text((new Date() - date) + " ms");
                 });
             }
-            
+
             ko.observableArray.fn.reset = function(values) {
                 var array = this();
                 this.valueWillMutate();
@@ -162,29 +163,23 @@
                     <h2>Performance Comparison for Knockout, Angular and React</h2>
                 </div>
             </div>
-            
-            <div id="knockout" class="col-md-3">
-                <div class="row">
-                    <div class="col-md-7">
-                        <h3>Knockout</h3>    
-                    </div>
-                    <div class="col-md-5 text-right time" id="knockout-time" data-bind="click: run">Run</div>
-                </div>
-                <div data-bind="foreach: data">
-                    <div class="row">
-                        <div class="col-md-12 test-data">
-                            <span data-bind="click: $root.select.bind($root, $data), text: $data.label, css: { selected: $data.id === $root.selected() }"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
+
             <div class="col-md-3">
                 <div class="row">
                     <div class="col-md-7">
-                        <h3>Angular</h3>    
+                        <h3>React</h3>
                     </div>
-                    <div class="col-md-5 text-right time" id="angular-time" ng-click="run()">Run</div>
+                    <div class="col-md-5 text-right time" id="run-react">Run</div>
+                </div>
+                <div id="react"></div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="row">
+                    <div class="col-md-7">
+                        <h3>Angular</h3>
+                    </div>
+                    <div class="col-md-5 text-right time" id="run-angular" ng-click="run()">Run</div>
                 </div>
                 <div>
                     <div class="row" ng-repeat="item in data">
@@ -194,28 +189,34 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-3">
+
+            <div id="knockout" class="col-md-3">
                 <div class="row">
                     <div class="col-md-7">
-                        <h3>React</h3>    
+                        <h3>Knockout</h3>
                     </div>
-                    <div class="col-md-5 text-right time" id="react-time">Run</div>
+                    <div class="col-md-5 text-right time" id="run-knockout" data-bind="click: run">Run</div>
                 </div>
-                <div id="react"></div>
+                <div data-bind="foreach: data">
+                    <div class="row">
+                        <div class="col-md-12 test-data">
+                            <span data-bind="click: $root.select.bind($root, $data), text: $data.label, css: { selected: $data.id === $root.selected() }"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
+
             <div class="col-md-3">
                 <div class="row">
                     <div class="col-md-7">
-                        <h3>Raw</h3>    
+                        <h3>Raw</h3>
                     </div>
-                    <div class="col-md-5 text-right time" id="raw-time">Run</div>
+                    <div class="col-md-5 text-right time" id="run-raw">Run</div>
                 </div>
                 <div id="raw"></div>
             </div>
         </div>
-        
+
         <script type="text/html" id="raw-template">
             <div class="row">
                 <div class="col-md-12 test-data">

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Performance of React JS, Angular JS and Knockout JS</title>
+</head>
+<body>
+    <h2>Performance of React JS, Angular JS and Knockout JS</h2>
+
+    <p>I've recently written an <a href="https://www.codementor.io/reactjs/tutorial/react-vs-angularjs" target="_blank">article</a> comparing React JS and Angular JS, and it's been getting a fair bit of attention, so I figured I'd go one step further and show how well each of the two perform. I've also added in Knockout JS to the mix here just for comparison's sake, and also some raw JavaScript DOM manipulation to give a base line as to how well things work across the board.</p>
+
+    <p>I've put together a quick page that allows you to see the rendering time difference between the three frameworks, plus the raw DOM manipulation. It's what I've been using to get how long each framework takes to render large lists, as seen in the results table below. Take a look <a href="htts://chrisharrington.github.io/demos/performance" target="_blank">here</a>.</p>
+
+    <h3>Testing Methodology</h3>
+
+    <p>This is by no means a scientific test as to how well each framework performs. That said, though, I tried to make it equal across all frameworks, so to that end, I'm going to walk through how I wrote each framework's test below. Basically, I generate a list of 1000 items that get rendered into a <code>ul</code> tag, and then measure how long it takes by measuring dates before and after a render. The user is able to select an item in the list, too, so it's not just a straight html render; there are events bound. It's not a perfect test by any stretch, but it gets the point across.</p>
+
+    <p><b>Note:</b> If you're interested in this section at all, you're going to need at least a passing understanding as to how to build something in each of the frameworks. Tutorials on Knockout, Angular and React is outside the scope of this article.</p>
+
+    <h4>React JS</h4>
+
+    <pre>
+var Class = React.createClass({
+    select: function(data) {
+        this.props.selected = data.id;
+        this.forceUpdate();
+    },
+
+    render: function() {
+        var items = [];
+        for (var i = 0; i &lt; this.props.data.length; i++) {
+            items.push(
+                React.createElement("div", { className: "row" },
+                    React.createElement("div", { className: "col-md-12 test-data" },
+                        React.createElement("span", { className: this.props.selected === this.props.data[i].id ? "selected" : "", onClick: this.select.bind(null, this.props.data[i]) }, this.props.data[i].label)
+                    )
+                )
+            );
+        }
+
+        return React.createElement("div", null, items);
+    }
+});
+
+$("#run-react").on("click", function() {
+    var built = new Class({ data: data, selected: null });
+
+    var data = _buildData(),
+    date = new Date();
+
+    React.render(built, $("#react")[0]);
+    $("#run-react").text((new Date() - date) + " ms");
+});
+    </pre>
+
+    <p>So as a quick run down, when the user initiates a run, I built up a new list of 1000 items, make a note of the current time, render the React class, and then measure how long it took and write that time to the page. The class itself is straightforward, with a quick look in the render function to push all of the created <code>li</code> tags into an array, and then rendering that array into a containing <code>div</code>. There's an <code>onClick</code> binding set on the <code>li</code> to select it, too.</p>
+
+    <h4>Angular JS</h4>
+
+    <pre>
+&lt;div&gt;
+    &lt;div class="row" ng-repeat="item in data"&gt;
+        &lt;div class="col-md-12 test-data"&gt;
+            &lt;span ng-class="{ selected: item.id === $parent.selected }" ng-click="select(item)"&gt;{{item.label}}&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+    </pre>
+
+    <pre>
+angular.module("test", []).controller("controller", function($scope) {
+    $scope.run = function() {
+        var data = _buildData(),
+        date = new Date();
+
+        $scope.selected = null;
+        $scope.$$postDigest(function() {
+            $("#run-angular").text((new Date() - date) + " ms");
+        });
+
+        $scope.data = data;
+    };
+
+    $scope.select = function(item) {
+        $scope.selected = item.id;
+    };
+});
+    </pre>
+
+    <p>The whole performance page is marked as an Angular app, so building up the module is pretty straightforward. Of note here is the <code>$$postDigest</code> hook, which is an internal Angular construct. It allows us to specify a callback to fire after a digest cycle has completed.</p>
+
+    <h4>Knockout JS</h4>
+
+    <pre>
+&lt;div id="knockout" class="col-md-3"&gt;
+    &lt;div class="row"&gt;
+        &lt;div class="col-md-7"&gt;
+            &lt;h3&gt;Knockout&lt;/h3&gt;
+        &lt;/div&gt;
+        &lt;div class="col-md-5 text-right time" id="run-knockout" data-bind="click: run"&gt;Run&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div data-bind="foreach: data"&gt;
+        &lt;div class="row"&gt;
+            &lt;div class="col-md-12 test-data"&gt;
+                &lt;span data-bind="click: $root.select.bind($root, $data), text: $data.label, css: { selected: $data.id === $root.selected() }"&gt;&lt;/span&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+    </pre>
+
+    <pre>
+ko.applyBindings({
+    selected: ko.observable(),
+    data: ko.observableArray(),
+
+    select: function(item) {
+        this.selected(item.id);
+    },
+
+    run: function() {
+        var data = _buildData(),
+        date = new Date();
+
+        this.selected(null);
+        this.data(data);
+        $("#run-knockout").text((new Date() - date) + " ms");
+    }
+}, $("#knockout")[0]);
+    </pre>
+
+    <p>Here, we're using an anonymous template for the Knockout bindings. We set up a click, text and css binding for indicating which item is selected, and a <code>foreach</code> loop to actually do the rendering.</p>
+    
+    <h4>Raw DOM Manipulation</h4>
+    
+    <p>I added raw DOM manipulation to give a baseline as to how to run the same test without any fancypants framework.</p>
+    
+    <pre>
+&lt;script type="text/html" id="raw-template"&gt;
+    &lt;div class="row"&gt;
+        &lt;div class="col-md-12 test-data"&gt;
+            &lt;span class="{{className}}"&gt;{{label}}&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/script&gt;
+    </pre>
+    
+    <pre>
+$("#run-raw").on("click", function() {
+    document.getElementById("raw").innerHTML = "";
+    var data = _buildData(),
+        date = new Date(),
+        template = $("#raw-template").html(),
+        html = "";
+
+    for (var i = 0; i &lt; data.length; i++) {
+        var render = template;
+        render = render.replace("{{className}}", "");
+        render = render.replace("{{label}}", data[i].label);
+        html += render;
+    }
+
+    document.getElementById("raw").innerHTML = html;
+
+    $("#raw").on("click", ".test-data span", function() {
+        $("#raw .selected").removeClass("selected");
+        $(this).addClass("selected");
+    });
+
+    $("#run-raw").text((new Date() - date) + " ms");
+});
+    </pre>
+    
+    <p>For the raw section, I'm grabbing the template from a <code>script</code> tag (marked with type <code>text/html</code>) and replace some key words wrapped in double curly braces with the appropriate text. Click events are hooked up via jquery.</p>
+    
+    <h3>Results</h3>
+    
+    <p>I ran all the tests in in Chrome 39.0.2171.95 by opening the <a href="https://chrisharrington.github.io/demos/performance" target="_blank">test page</a> and clicking the run button for each framework ten times. The numbers are below.</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th></th>
+                <th>React JS</th>
+                <th>Angular JS</th>
+                <th>Knockout JS</th>
+                <th>Raw</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>58 ms</td>
+                <td>236 ms</td>
+                <td>282 ms</td>
+                <td>8 ms</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>563 ms</td>
+                <td>254 ms</td>
+                <td>367 ms</td>
+                <td>42 ms</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>34 ms</td>
+                <td>324 ms</td>
+                <td>362 ms</td>
+                <td>40 ms</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>35 ms</td>
+                <td>271 ms</td>
+                <td>316 ms</td>
+                <td>41 ms</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>24 ms</td>
+                <td>228 ms</td>
+                <td>340 ms</td>
+                <td>42 ms</td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td>23 ms</td>
+                <td>312 ms</td>
+                <td>340 ms</td>
+                <td>41 ms</td>
+            </tr>
+            <tr>
+                <td>7</td>
+                <td>26 ms</td>
+                <td>261 ms</td>
+                <td>335 ms</td>
+                <td>38 ms</td>
+            </tr>
+            <tr>
+                <td>8</td>
+                <td>25 ms</td>
+                <td>219 ms</td>
+                <td>327 ms</td>
+                <td>42 ms</td>
+            </tr>
+            <tr>
+                <td>9</td>
+                <td>22 ms</td>
+                <td>293 ms</td>
+                <td>335 ms</td>
+                <td>39 ms</td>
+            </tr>
+            <tr>
+                <td>10</td>
+                <td>24 ms</td>
+                <td>254 ms</td>
+                <td>344 ms</td>
+                <td>40 ms</td>
+            </tr>
+            <tr>
+                <td>Average</td>
+                <td>83.40 ms</td>
+                <td>265.20 ms</td>
+                <td>334.80 ms</td>
+                <td>37.30 ms</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h3>Analysis</h3>
+    
+    <p>So on average, doing everything by hand is the fastest way to render a list of 1000 items, as the raw DOM manipulation handily beats out the heavier frameworks. The first run is the quickest because there's nothing to erase from the container. I'm not terribly surprised by these numbers, as a framework brings a lot more to the table than performance: maintability, modularity and readability are all good reasons to use a framework, and those things aren't represented in the numbers above. Of the three frameworks, React is by far the speediest. The second run in the React test is the slowest run out of all the tests I performed, and it happens every time. I'm not 100% sure on this, but I suspect it's because of how React's diff algorithm works with the virtual DOM. The second time through, there's a bunch of new stuff in the DOM that needs to be compared against, while every subsequent run after that already has a starting point to work from. For what it's worth, if we remove the second run from the React test, the new average works out to 30.11 ms, which beats out the raw DOM manipulation numbers. Angular and Knockout are in the same league, although Angular is still faster by a fair margin.</p>
+    
+    <p>If performance is your primary motivation, React is a good choice for a framework, especially if you're showing large amounts of data. I understand that this example is relatively contrived, as nobody in their right mind is going to be showing 1000 items all at once, but I feel it's indicative as to which framework performs better as a whole.</p>
+    
+    </body>
+</html>
