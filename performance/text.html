@@ -175,7 +175,7 @@ $("#run-raw").on("click", function() {
     
     <h3>Results</h3>
     
-    <p>I ran all the tests in in Chrome 39.0.2171.95, Firefox 28 and Safari 7.0.2 by opening the <a href="https://chrisharrington.github.io/demos/performance" target="_blank">test page</a> and clicking the run button for each framework ten times. If you're interested in the raw data, I've made it available <a href="https://docs.google.com/spreadsheets/d/1AMCU14-1bGr_WFhwqNu3LQyTlJ7yWOF_qoLEvS-YweU/pubhtml?gid=0&single=true" target="_blank">here</a>. There are some fancy charts below which show the results.</p>
+    <p>I ran all the tests in in Chrome 39.0.2171.95, Firefox 34.0.5 and Safari 7.0.2 by opening the <a href="https://chrisharrington.github.io/demos/performance" target="_blank">test page</a> and clicking the run button for each framework ten times. If you're interested in the raw data, I've made it available <a href="https://docs.google.com/spreadsheets/d/1AMCU14-1bGr_WFhwqNu3LQyTlJ7yWOF_qoLEvS-YweU/pubhtml?gid=0&single=true" target="_blank">here</a>. There are some fancy charts below which show the results.</p>
 	
 	<iframe width="600" height="371" seamless frameborder="0" scrolling="no" src="https://docs.google.com/spreadsheets/d/1AMCU14-1bGr_WFhwqNu3LQyTlJ7yWOF_qoLEvS-YweU/pubchart?oid=1273344203&amp;format=interactive"></iframe>
 	
@@ -185,7 +185,7 @@ $("#run-raw").on("click", function() {
     
     <h3>Analysis</h3>
     
-    <p>On average, React is the fastest at rendering a list of 1000 items. It's a surprising result, because I would have expected raw DOM manipulation to be the fastest, as there's nothing too hook up and so on. There's an interesting outlier in the Chrome test in that the second run of the React test takes a very long time to run: almost 600ms. It happens every time the second test is run in Chrome after a fresh reload and I'm not sure why. Raw DOM manipulation comes in second, which doesn't surprise me, as it's obviously much lighter than either Angular or Knockout, with nothing else to hook up or take care of behind the scenes. Angular comes in third, and Knockout comes in last. Knockout takes an especially long time in Firefox (~450ms). On a related note, Safari is the best browser across the board for all of the tested frameworks, but slowest for the raw test.</p>
+    <p>On average, React is the fastest at rendering a list of 1000 items. It's a surprising result, because I would have expected raw DOM manipulation to be the fastest, as there's nothing too hook up and so on. There's an interesting outlier in the Chrome test in that the second run of the React test takes a very long time to run: almost 600ms. It happens every time the second test is run in Chrome after a fresh reload and I'm not sure why. Raw DOM manipulation comes in second, which doesn't surprise me, as it's obviously much lighter than either Angular or Knockout, with nothing else to hook up or take care of behind the scenes. Angular comes in third, and Knockout comes in last. Knockout takes an especially long time in Firefox (~420ms). On a related note, Safari is the best browser across the board for all of the tested frameworks, but slowest for the raw test.</p>
     
     <p>If performance is your primary motivation, React is a good choice for a framework, especially if you're showing large amounts of data. I understand that this example is relatively contrived, as nobody in their right mind is going to be showing 1000 items all at once, but I feel it's indicative as to which framework performs better as a whole.</p>
     
