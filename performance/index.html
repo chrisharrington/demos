@@ -17,14 +17,13 @@
             .time { font-weight:bold; height:26px; line-height:26px; vertical-align:middle; display:inline-block; cursor:pointer; text-decoration:underline; }
         </style>
 
-        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
         <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.2.0/knockout-min.js"></script>
         <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.3/angular.min.js"></script>
         <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/react/0.12.1/react.js"></script>
         <script type="text/javascript">
             console.timeEnd("build");
 
-            $(function() {
+            document.addEventListener("DOMContentLoaded", function() { 
                 _knockout();
                 _react();
                 _raw();
@@ -63,9 +62,9 @@
 
                         this.selected(null);
                         this.data(data);
-                        $("#run-knockout").text((new Date() - date) + " ms");
+						document.getElementById("run-knockout").innerHTML = (new Date() - date) + " ms";
                     }
-                }, $("#knockout")[0]);
+                }, document.getElementById("knockout"));
 
             }
 
@@ -77,7 +76,7 @@
 
                         $scope.selected = null;
                         $scope.$$postDigest(function() {
-                            $("#run-angular").text((new Date() - date) + " ms");
+							document.getElementById("run-angular").innerHTML = (new Date() - date) + " ms";
                         });
 
                         $scope.data = data;
@@ -110,14 +109,13 @@
                     }
                 });
 
-                $("#run-react").on("click", function() {
-                    
-
+				var runReact = document.getElementById("run-react");
+				runReact.addEventListener("click", function() {
                     var data = _buildData(),
                         date = new Date();
 
-                    React.render(new Class({ data: data, selected: null }), $("#react")[0]);
-                    $("#run-react").text((new Date() - date) + " ms");
+                    React.render(new Class({ data: data, selected: null }), document.getElementById("react"));
+                    runReact.innerHTML = (new Date() - date) + " ms";
                 });
             }
 
