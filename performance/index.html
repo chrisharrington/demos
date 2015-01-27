@@ -122,10 +122,10 @@
             }
 
             function _raw() {
-                $("#run-raw").on("click", function() {
+				document.getElementById("run-raw").addEventListener("click", function() {
                     var data = _buildData(),
                         date = new Date(),
-                        template = $("#raw-template").html(),
+                        template = document.getElementById("raw-template").innerHTML,
                         html = "";
                     
                     document.getElementById("raw").innerHTML = "";
@@ -137,14 +137,19 @@
                         html += render;
                     }
 
-                    document.getElementById("raw").innerHTML = html;
+					var container = document.getElementById("raw");
+                    container.innerHTML = html;
 
-                    $("#raw").on("click", ".test-data span", function() {
-                        $("#raw .selected").removeClass("selected");
-                        $(this).addClass("selected");
-                    });
+					var spans = document.getElementById("raw").querySelectorAll(".test-data span");
+					for (var i = 0; i < spans.length; i++)
+						spans[i].addEventListener("click", function() {
+							var selected = container.querySelector(".selected");
+							if (selected)
+								selected.className = "";
+							this.className = "selected";
+						});
 
-                    $("#run-raw").text((new Date() - date) + " ms");
+					document.getElementById("run-raw").innerHTML = (new Date() - date) + " ms";
                 });
             }
 
