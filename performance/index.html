@@ -120,13 +120,12 @@
             }
 
             function _raw() {
+				var container = document.getElementById("raw"),
+					template = document.getElementById("raw-template").innerHTML;
 				document.getElementById("run-raw").addEventListener("click", function() {
                     var data = _buildData(),
                         date = new Date(),
-                        template = document.getElementById("raw-template").innerHTML,
                         html = "";
-                    
-                    document.getElementById("raw").innerHTML = "";
 
                     for (var i = 0; i < data.length; i++) {
                         var render = template;
@@ -135,10 +134,9 @@
                         html += render;
                     }
 
-					var container = document.getElementById("raw");
                     container.innerHTML = html;
 
-					var spans = document.getElementById("raw").querySelectorAll(".test-data span");
+					var spans = container.querySelectorAll(".test-data span");
 					for (var i = 0; i < spans.length; i++)
 						spans[i].addEventListener("click", function() {
 							var selected = container.querySelector(".selected");
