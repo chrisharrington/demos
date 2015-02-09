@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>React JS Calendar</title>
+    </head>
+    <body>
+        <h2>React JS Calendar</h2>
+        
+        <p>Today, I'm going to talk about how to create a calendar control using <a href="https://facebook.github.io/react/" target="_blank">React JS</a>, <a href="http://lesscss.org/" target="_blank">LESS CSS</a>, <a href="https://fortawesome.github.io/Font-Awesome/" target="_blank">Font Awesome</a> and <a href="http://momentjs.com/" target="_blank">Moment</a>. I'm going to assume you're at least halfway familiar with these tools, but if you're not, I suggest you take a look using the links above. The calendar itself will be a React JS class that allows the user to select a date, which is set on a controller's property. I've styled the calendar, and I'll include that style in this tutorial, but you can obviously feel free to tweak how it looks to your heart's content. If you're the kind of reader that prefers to view a completed product and just check the source yourself, I've put together a demo page which shows off the calendar. You can see it <a href="http://chrisharrington.github.com/demos/calendar.html" target="_blank">here</a>. This calendar control shouldn't be taken as a copy and paste solution to a problem you're having; it's meant as a guide to React itself as opposed to providing a production-ready calendar.</p>
+        
+        <img src="https://i.imgur.com/4m50fpQ.png" alt="sample" width="298" height="257" />
+
+		<p><b>Note:</b> The CSS shown here might not match up with exactly what you see on the demo page because I want the demo to look at least halfway decent with some pretty styling. For the most part, though, I'm going to try to keep the CSS on the tutorial as bare as possible.</p>
+		
+		<p>I've split the calendar control up into a few different classes: Calendar, DayNames and Week. The Calendar class contains the other two. DayNames is a simple header for the calendar which displays (unsurprisingly) week names, while the Week class is responsible for rendering each individual week.</p>
+		
+		<h3>Calendar</h3>
+		
+		<pre>
+var Calendar = React.createClass({
+	getInitialState: function() {
+		return {
+			month: this.props.selected.clone()
+		};
+	},
+
+	previous: function() {
+		var month = this.state.month;
+		month.add(-1, "M");
+		this.setState({ month: month });
+	},
+
+	next: function() {
+		var month = this.state.month;
+		month.add(1, "M");
+		this.setState({ month: month });
+	},
+
+	select: function(day) {
+		this.props.selected = day.date;
+		this.forceUpdate();
+	},
+
+	render: function() {
+		return &lt;div&gt;
+			&lt;div className="header"&gt;
+				&lt;i className="fa fa-angle-left" onClick={this.previous}&gt;&lt;/i&gt;
+				{this.renderMonthLabel()}
+				&lt;i className="fa fa-angle-right" onClick={this.next}&gt;&lt;/i&gt;
+			&lt;/div&gt;
+			&lt;DayNames /&gt;
+			{this.renderWeeks()}
+		&lt;/div&gt;;
+	},
+
+	renderWeeks: function() {
+		var weeks = [],
+			done = false,
+			date = this.state.month.clone().startOf("month").add("w" -1).day("Sunday"),
+			monthIndex = date.month(),
+			count = 0;
+
+
+		while (!done) {
+			weeks.push(&lt;Week key={date.toString()} date={date.clone()} month={this.state.month} select={this.select} selected={this.props.selected} /&gt;);
+			date.add(1, "w");
+			done = count++ &gt; 2 && monthIndex !== date.month();
+			monthIndex = date.month();
+		}
+
+		return weeks;
+	},
+
+	renderMonthLabel: function() {
+		return &lt;span&gt;{this.state.month.format("MMMM, YYYY")}&lt;/span&gt;;
+	},
+		</pre>
+        
+        <p>When rendering this class, the only prop it requires is the initially set date; everything else is derived from that. In our <code>getInitialState</code> method, we're setting the current month to be the same as the selected date. Month and selected date are two different variables to account for the user moving from February, for example, to March without selecting a new date. Outside of rendering, our Calendar class has three methods: <code>previous</code>, <code>next</code> and <code>select</code>. The <code>previous</code> and <code>next</code> methods are responsible for moving the user's calendar view from the current month to the previous and next month, respectively, while the select method takes care of marking a new date as the selected date. We need to perform a <code>forceUpdate</code> here to force a rerender of the view, as the Calendar class isn't watching the selected property.</p>
+		
+		<p>The <code>render</code> method writes out some pretty standard HTML. Here, we're using <a href="https://fortawesome.github.io/Font-Awesome/" target="_blank">Font Awesome</a> to render some previous and next arrows, which wrap the current month's label. Then, we render the <code>DayNames</code> class, followed by the list of <code>Week</code> classes. There's some logic in there to allow for showing trailing and leading days, too.</p>
+		
+		<h3>DayNames</h3>
+		
+		<p>The <code>DayNames</code> class is the simplest of the three. It's sole responsibility is to render the names of the days near the top of the calendar.</p>
+		
+		<pre>
+var DayNames = React.createClass({
+	render: function() {
+		return &lt;div className="week names"&gt;
+			&lt;span className="day"&gt;Sun&lt;/span&gt;
+			&lt;span className="day"&gt;Mon&lt;/span&gt;
+			&lt;span className="day"&gt;Tue&lt;/span&gt;
+			&lt;span className="day"&gt;Wed&lt;/span&gt;
+			&lt;span className="day"&gt;Thu&lt;/span&gt;
+			&lt;span className="day"&gt;Fri&lt;/span&gt;
+			&lt;span className="day"&gt;Sat&lt;/span&gt;
+		&lt;/div&gt;;
+	}
+});
+		</pre>
+		
+		<p>There's not really much to say about this. Note the use of <code>className</code> instead of <code>class</code>; it's an easy mistake to make when first starting out with React.</p>
+		
+		<h2>Week</h2>
+		
+		<pre>
+var Week = React.createClass({
+	render: function() {
+		var days = [],
+			date = this.props.date,
+			month = this.props.month;
+
+		for (var i = 0; i &lt; 7; i++) {
+			var day = {
+				name: date.format("dd").substring(0, 1),
+				number: date.date(),
+				isCurrentMonth: date.month() === month.month(),
+				isToday: date.isSame(new Date(), "day"),
+				date: date
+			};
+			days.push(&lt;span key={day.date.toString()} className={"day" + (day.isToday ? " today" : "") + (day.isCurrentMonth ? "" : " different-month") + (day.date.isSame(this.props.selected) ? " selected" : "")} onClick={this.props.select.bind(null, day)}&gt;{day.number}&lt;/span&gt;);
+			date = date.clone();
+			date.add(1, "d");
+
+		}
+
+		return &lt;div className="week" key={days[0].toString()}&gt;
+			{days}
+		&lt;/div&gt;;
+	}
+});
+		</pre>
+		
+		<p>The <code>Week</code> class takes four props: date, month, select and selected. The first indicates the start of the week, while month gives us the current month for determining if we need trailing or leading days. The third and fourth props deal with selecting a date. The render method renders seven days, while setting various CSS classes on the day, one each for selected, today or trailing/leading days.</p>
+        
+        <h3>CSS</h3>
+        
+        <pre>
+.vertical-centre (@height) {
+    height:@height;
+    line-height:@height !important;
+    display:inline-block;
+    vertical-align:middle;
+}
+
+.border-box {
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+}
+
+@border-colour:#CCC;
+calendar {
+    float:left;
+    display:block;
+    .border-box;
+    background:white;
+    width:300px;
+    border:solid 1px @border-colour;
+    margin-bottom:10px;
+    
+    @secondary-colour:#2875C7;
+    @spacing:10px;
+    @icon-width:40px;
+    @header-height:40px;
+
+    >div.header {
+        float:left;
+        width:100%;
+        background:@secondary-colour;
+        height:@header-height;
+        color:white;
+        
+        >* { 
+            .vertical-centre(@header-height);
+        }
+        
+        >i {
+            float:left;
+            width:@icon-width;
+            font-size:1.125em;
+            font-weight:bold;
+            position:relative;
+            .border-box;
+            padding:0 @spacing;
+            cursor:pointer;
+        }
+        
+        >i.fa-angle-left {
+            text-align:left;
+        }
+        
+        >i.fa-angle-right {
+            text-align:right;
+            margin-left:@icon-width*-1;
+        }
+        
+        >span { 
+            float:left;
+            width:100%;
+            font-weight:bold;
+            text-transform:uppercase;
+            .border-box;
+            padding-left:@icon-width+@spacing;
+            margin-left:@icon-width*-1;
+            text-align:center;
+            padding-right:@icon-width;
+            color:inherit;
+        }
+    }
+    >div.week {
+        float:left;
+        width:100%;
+        border-top:solid 1px @border-colour;
+        
+        &:first-child {
+            border-top:none;
+        }
+        
+        >span.day {
+            float:left;
+            width:100%/7;
+            .border-box;
+            border-left:solid 1px @border-colour;
+            font-size:0.75em;
+            text-align:center;
+            .vertical-centre(30px);
+            background:white;
+            cursor:pointer;
+            color:black;
+            
+            &:first-child {
+                border-left:none;
+            }
+            
+            &.today {
+                background:#E3F2FF;
+            }
+            
+            &.different-month {
+                color:#C0C0C0;
+            }
+            
+            &.selected {
+                background:@secondary-colour;
+                color:white;
+            }
+        }
+        
+        &.names>span {
+            color:@secondary-colour;
+            font-weight:bold;
+        }
+    }
+}
+        </pre>
+        
+        <p>The first few lines define a few helpful mixins using LESS CSS. The first allows us to centre elements vertically, presuming we have the height of the wrapping element. The second sets the box-sizing property, which Firefox doesn't support without the -moz- prefix.</p>
+        
+        <p>Next, we're setting some variables related to styling and spacing that are used more than once. If you want to change the colour, for example, the secondary-colour variable is what you need to update. The rest is just standard styling to make the calendar look somewhat pretty and spacing stuff to make sure it's aligned properly.</p>
+        
+        <h2>Conclusion</h2>
+        
+        <p>And that's it! As I mentioned above, I've put together a demo page which shows off the calendar in its final form. You can see it <a href="http://chrisharrington.github.io/demos/calendar.html" target="_blank">here</a>. Thanks for reading!</p>
+    </body>
+</html>

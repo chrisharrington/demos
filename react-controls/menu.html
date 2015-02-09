@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+
+<html ng-app="demo">
+	<head>
+		<meta name="viewport" content="width=device-width" />
+		<title text="">Angular JS Sliding Menu</title>
+		
+		<style type="text/less">
+			.transition (@value1,@value2:X,...) { @value: ~`"@{arguments}".replace(/[\[\]]|\,\sX/g, '')`; -webkit-transition: @value; -moz-transition: @value; -ms-transition: @value; -o-transition: @value; transition: @value; }
+			.transform (@value1,@value2:X,...) { @value: ~`"@{arguments}".replace(/[\[\]]|\,\sX/g, '')`; transform:@value; -ms-transform:@value; -webkit-transform:@value; -o-transform:@value; -moz-transform:@value; }
+            .border-box { box-sizing:border-box; -moz-box-sizing:border-box; }
+			
+			body { font-family:Arial; font-size:14px; }
+			body>span, body>h1 { float:left; width:100%; margin:0; padding:0; margin-bottom:10px; }
+			
+			span { color:#888888; }
+			button { width:auto; padding:7px 22px; }
+            
+            menu { display:block;
+                @menu-width:250px;
+                >div { position:absolute; z-index:2; top:0;  width:@menu-width; height:100%; .border-box; .transition(-webkit-transform ease 250ms); .transition(transform ease 250ms);
+                    &.left { background:#273D7A; left:@menu-width*-1; }
+                    &.show.left { .transform(translate3d(@menu-width, 0, 0)); }
+                    
+                    &.right { background:#6B1919; right:@menu-width*-1; }
+                    &.show.right { .transform(translate3d(@menu-width*-1, 0, 0)); }
+                    
+                    >menu-item { display:block;
+                        >div { float:left; width:100%; margin:0; padding:10px 15px; border-bottom:solid 1px #555; cursor:pointer; .border-box; color:#B0B0B0;
+                            &:hover { color:#F0F0F0; }
+                            >span { float:left; color:inherit; }
+                        }
+                    }
+                }
+            }
+		</style>
+		
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular.min.js"></script>
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.5/less.min.js"></script>
+		
+		<script type="text/javascript">
+			var app = angular.module("demo", []);
+
+			app.controller("modalDemo", function($scope, $rootScope) {
+				$scope.leftVisible = false;
+                $scope.rightVisible = false;
+				
+				$scope.close = function() {
+                    $scope.leftVisible = false;
+					$scope.rightVisible = false;
+				};
+				
+                $scope.showLeft = function(e) {
+                    $scope.leftVisible = true;
+                    e.stopPropagation();
+                };
+                
+                $scope.showRight = function(e) {
+                    $scope.rightVisible = true;
+                    e.stopPropagation();
+                }
+                
+                $rootScope.$on("documentClicked", _close);
+				$rootScope.$on("escapePressed", _close);
+                
+                function _close() {
+                    $scope.$apply(function() {
+                        $scope.close(); 
+                    });
+                }
+			});
+
+			app.run(function($rootScope) {
+				document.addEventListener("keyup", function(e) {
+					if (e.keyCode === 27)
+						$rootScope.$broadcast("escapePressed", e.target);
+				});
+                
+                document.addEventListener("click", function(e) {
+                    $rootScope.$broadcast("documentClicked", e.target);
+                });
+			});
+			
+			app.directive("menu", function() {
+				return {
+					restrict: "E",
+					template: "<div ng-class='{ show: visible, left: alignment === \"left\", right: alignment === \"right\" }' ng-transclude></div>",
+					transclude: true,
+                    scope: {
+                        visible: "=",
+                        alignment: "@"
+                    }
+				};
+			});
+            
+            app.directive("menuItem", function() {
+                 return {
+                     restrict: "E",
+                     template: "<div ng-click='navigate()' ng-transclude></div>",
+                     transclude: true,
+                     scope: {
+                         hash: "@"
+                     },
+                     link: function($scope) {
+                         $scope.navigate = function() {
+                             window.location.hash = $scope.hash;
+                         }
+                     }
+                 }
+            });
+		</script>
+	</head>
+	<body ng-controller="modalDemo">
+		<h1>Angular JS Sliding Menu</h1>
+		<span>This page demonstrates how a menu panel can be slid in from the side of the screen using Angular JS. It's a great directive to use for mobile devices.</span>
+		<span>The menu itself is an Angular JS directive, and I'm using LESS CSS for some of the more complicated CSS rules. I highly recommend you check them out.</span>
+		<button ng-click="showLeft($event)">Show Left Menu!</button>
+        <button ng-click="showRight($event)">Show Right Menu!</button>
+		
+		<menu visible="leftVisible" alignment="left">
+            <menu-item hash="first-page">First Page</menu-item>
+            <menu-item hash="second-page">Second Page</menu-item>
+            <menu-item hash="third-page">Third Page</menu-item>
+        </menu>
+        
+        <menu visible="rightVisible" alignment="right">
+            <menu-item hash="first-page">First Page</menu-item>
+            <menu-item hash="second-page">Second Page</menu-item>
+            <menu-item hash="third-page">Third Page</menu-item>
+        </menu>
+	</body>
+</html>

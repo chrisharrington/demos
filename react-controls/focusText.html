@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Angular JS Focus Text</title>
+    </head>
+    <body>
+        <h2>Angular JS Focus Text</h2>
+        
+        <p>
+            Today, I'm going to talk about how to create a focus text box control using <a href="http://angularjs.org" target="_blank">Angular JS</a>, <a href="http://lesscss.org/" target="_blank">LESS CSS</a>, and <a href="https://fortawesome.github.io/Font-Awesome/" target="_blank">Font Awesome</a>. The directive should replace inputs of type text and password, and provides some relatively fancy feedback to the user as to which input is focused. I'm going to assume you're at least halfway familiar with these tools, but if you're not, I suggest you take a look using the links above. You can see it <a href="http://chrisharrington.github.com/demos/focus.html" target="_blank">here</a>.
+        </p>
+        
+        <p>
+			I'm going to split the article up into three separate sections: HTML, JavaScript and CSS. In the HTML section, I'll show how you can add the directive to your site quickly. I'll also explain some of what's going on in the directive's HTML. Next, I'll talk about the JavaScript and how to set up an Angular JS app, controller and directive. I'll also explain how the directive ties into the controller. Finally, I'll walk through the CSS and describe how exactly I'm performing the focus animations.
+		</p>
+        
+        <p>
+			<b>Note:</b> The CSS shown here might not match up with exactly what you see on the demo page because I want the demo to look at least halfway decent with some pretty styling. For the most part, though, I'm going to try to keep the CSS on the tutorial as bare as possible.
+		</p>
+		
+		<h3>HTML</h3>
+        
+        <h4>Directive Usage</h4>
+
+        <pre>
+&lt;text placeholder="Name..." ng-model="name"&gt;&lt;/text&gt;
+        </pre>
+		
+		<p>Here's an example of how you can use the text directive. The <b>placeholder</b> attribute works just as it would for a regular input control, providing text to show before the user entered anything. The <b>ng-model</b> built-in Angular JS directive allows for binding the value of the input to a controller variable. In our case above, the input's value is bound to a controller's <b>name</b> variable.
+        
+        <h4>Focus Text Template</h4>
+        
+        <p>
+            Even though the template for the focus text directive isn't very big, it would still be unwieldy to put inline with the directive, so it's in a separate file.
+        </p>
+        
+        <pre>
+&lt;div class="text-container"&gt;
+	&lt;input type="{{type}}" placeholder="{{placeholder}}" ng-model="ngModel" /&gt;
+	&lt;div class="focus"&gt;
+		&lt;div&gt;&lt;/div&gt;
+	&lt;/div>&gt;
+&lt;/div&gt;
+        </pre>
+        
+        <p>
+            We're setting a couple of things directly from the scope of our directive here. The first is the <b>type</b> of the input, which in our case will be one of "text" or "password". As you can see, this is a straight pass through from the directive usage to the directive template. The <b>placeholder</b> value works in exactly the same way, except of course that it can be anything you want. The <b>ng-model</b> attribute defines the binding between the variable on the outer scope (that of the controller) and our directive's isolated scope. Basically, this means that when the user types a value into the input field, that value is automatically applied to the controller's variable as specified in the directive usage.
+		</p>
+        
+        <h3>JavaScript</h3>
+        
+        <p>
+            Here's the Angular code for setting up the focus text directive, as well as the controller for our test page. To reduce confusion, I would break out the controller and directive into separate files, as is Angular best practice. For brevity's sake, I've included all the script in one section.
+        </p>
+        
+        <pre>
+var app = angular.module("demo", []);
+
+app.controller("textDemo", function($scope) {
+	$scope.value = "";
+});
+
+app.directive("text", function() {
+	return {
+		restrict: "E",
+		templateUrl: "templates/focus.html",
+		scope: {
+			type: "@",
+			placeholder: "@",
+			ngModel: "="
+		},
+		link: function(scope, element) {
+			$(element).on("focus", "input", function() {
+				$(element).addClass("focus");
+			});
+
+			$(element).on("blur", "input", function() {
+				$(element).removeClass("focus");
+			});
+		}
+	}
+});
+        </pre>
+        
+        <p>
+			There are three things going on here. First, we're creating the Angular JS application. Angular comes with the very useful ability of injecting dependencies. As we don't have any dependencies in this brief example, the second parameter for the module is just an empty array. Second, we're defining the controller, which manages all of the logic for rendering the view. Our controller scope has just the one variable (name), which binds to our directive's value field. Finally, we've got the directive definition itself. It's restricted to being an element via the restrict: "E" option. After that is the location of the template HTML, and then there's the isolated scope declaration. Angular JS provides a number of different scope options, but I've found that the isolated scope is the most common. If you leave the scope option out all together, the directive will have access to the parent scope. Creating the scope as we've done means we have access just to the directive's scope and nothing above it, outside of the specified bindings, like type, placeholder and ngModel in our example. Finally, we've got a <b>compile</b> function, which allows us to perform actions upon the directive's HTML element. In our case, we're hooking up event handlers to apply and remove the focus class when the element is focused and blurred, respectively. This is what allows us to render the focus animations.
+		</p>
+        
+        <h3>CSS</h3>
+        
+        <pre>
+@spacing:10px;
+@select-colour:#2875C7;
+
+.vertical-centre (@height) { height:@height; line-height:@height !important; display:inline-block; vertical-align:middle; }
+
+text {
+	float:left;
+	display:block;
+	width:250px;
+	border:solid 1px #AAA;
+	margin-right:15px;
+	
+	div.text-container {
+		float:left;
+		width:100%;
+		text-align:inherit;
+		
+		>input {
+			float:left;
+			width:100%;
+			-webkit-appearance:none;
+			text-align:inherit;
+			padding:@spacing;
+			border:none;
+			font-size:0.875em;
+			background:white;
+			outline:none;
+			border-box:box-sizing;
+			border-radius:3px;
+			transition:background ease 250ms;
+		}
+		
+		>div.focus {
+			float:left;
+			width:100%;
+			margin-top:-1px;
+			position:relative;
+			height:1px;
+			background:transparent;
+			border-color:transparent;
+			
+			>div {
+				position:absolute;
+				z-index:2;
+				width:100%;
+				transform:scale(0, 1);
+				height:2px;
+				margin-top:-1px;
+				background:@select-colour;
+				transition:all ease 250ms;
+			}
+		}
+	}
+
+	&.focus {
+		input {
+			background:#DEE9FA !important;
+		}
+		div.focus>div {
+			transform:scale(1, 1) !important;
+		}
+	}
+	&.error {
+		div.focus>div {
+			background:red !important;
+		}
+	}
+	&.focus.error {
+		input {
+			background:rgba(255, 0, 0, 0.125) !important;
+		}
+	}
+}
+		</pre>
+        
+        <p>
+			The first few lines define some variables and mixins that we'll be using for the rest of the CSS rules. Of note is the <b>vertical-centre</b> mixin, which allows us to centre anything vertically if we know the height. After that, we're just setting up the look and feel of the focus text box. For positioning, we're moving the focus bar up a pixel so as to cover up the lower border on the text box. There are two animations that are occurring when a text box gains focus: first, we're spreading the focus bar across the bottom of the input, and second, we're fading the background of the input to a blue (or red, if error prone). The first is accomplished using the <b>transform:scale</b> rule. Transforming the scale to (0, 1) indicates that the width of the element should be rendered as zero, while the height should be 100%, which is our default. When focusing, the scale changes to (1, 1), which indicates the width should jump back up to 100%. It's animated because we've got a <b>transition</b> set for the <b>transform</b> property. The background fade is accomplished in much the same manner, adding a <b>transition</b> to the <b>background</b> property of the input element.
+        </p>
+		
+		<p>
+			<b>Note:</b> The CSS above doesn't take into account vendor prefixes for some of the newer CSS rules. Things like border-radius, box-sizing, transform and transition will all require a multitude of vendor prefixes to be compatible with all of the common browsers.
+		</p>
+        
+        <h3>Conclusion</h3>
+        
+        <p>
+            And that's it! As I mentioned above, I've put together a demo page which shows off the text box in its final form. You can see it <a href="http://chrisharrington.github.io/demos/focus.html" target="_blank">here</a>. Thanks for reading!
+        </p>
+    </body>
+</html>

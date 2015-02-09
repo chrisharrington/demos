@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html ng-app="demo">
+	<head>
+		<meta name="viewport" content="width=device-width" />
+		<title text="">React JS Calendar Demo</title>
+		
+        <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.css" />
+        
+		<style type="text/less">
+			body { font-family:Arial; font-size:14px; }
+			body>span, body>h1 { float:left; width:100%; margin:0; padding:0; margin-bottom:10px; }
+			
+			span { color:#888888;
+                >b { color:black; }
+            }
+            
+            .vertical-centre (@height) { height:@height; line-height:@height !important; display:inline-block; vertical-align:middle; }
+            .border-box { box-sizing:border-box; -moz-box-sizing:border-box; }
+
+            @border-colour:#CCC;
+            #calendar { float:left; display:block; .border-box; background:white; width:300px; border:solid 1px @border-colour; margin-bottom:10px;
+                @secondary-colour:#2875C7;
+                @spacing:10px;
+                
+                @icon-width:40px;
+                @header-height:40px;
+                >div {
+					>div.header { float:left; width:100%; background:@secondary-colour; height:@header-height; color:white;
+						>* { .vertical-centre(@header-height); }
+						>i { float:left; width:@icon-width; font-size:1.125em; font-weight:bold; position:relative; .border-box; padding:0 @spacing; cursor:pointer; }
+						>i.fa-angle-left { text-align:left; }
+						>i.fa-angle-right { text-align:right; margin-left:@icon-width*-1; }
+						>span { float:left; width:100%; font-weight:bold; text-transform:uppercase; .border-box; padding-left:@icon-width+@spacing; margin-left:@icon-width*-1; text-align:center; padding-right:@icon-width; color:inherit; }
+					}
+					>div.week { float:left; width:100%; border-top:solid 1px @border-colour;
+						&:first-child { border-top:none; }
+						>span.day { float:left; width:100%/7; .border-box; border-left:solid 1px @border-colour; font-size:0.75em; text-align:center; .vertical-centre(30px); background:white; cursor:pointer; color:black;
+							&:first-child { border-left:none; }
+							&.today { background:#E3F2FF; }
+							&.different-month { color:#C0C0C0; }
+							&.selected { background:@secondary-colour; color:white; }
+						}
+						&.names>span { color:@secondary-colour; font-weight:bold; }
+					}
+				}
+            }
+        </style>
+		
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/react/0.12.2/react.js"></script>
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/react/0.12.2/JSXTransformer.js"></script>
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.5/less.min.js"></script>
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.3/moment.min.js"></script>
+        
+		<script type="text/jsx">
+			var Calendar = React.createClass({
+				getInitialState: function() {
+					return {
+						month: this.props.selected.clone()
+					};
+				},
+			
+				previous: function() {
+					var month = this.state.month;
+					month.add(-1, "M");
+					this.setState({ month: month });
+				},
+				
+				next: function() {
+					var month = this.state.month;
+					month.add(1, "M");
+					this.setState({ month: month });
+				},
+				
+				select: function(day) {
+					this.props.selected = day.date;
+					this.forceUpdate();
+				},
+			
+				render: function() {
+					return <div>
+						<div className="header">
+							<i className="fa fa-angle-left" onClick={this.previous}></i>
+							{this.renderMonthLabel()}
+							<i className="fa fa-angle-right" onClick={this.next}></i>
+						</div>
+						<DayNames />
+						{this.renderWeeks()}
+					</div>;
+				},
+				
+				renderWeeks: function() {
+					var weeks = [],
+                    	done = false,
+						date = this.state.month.clone().startOf("month").add("w" -1).day("Sunday"),
+						monthIndex = date.month(),
+						count = 0;
+						
+						
+                    while (!done) {
+						weeks.push(<Week key={date.toString()} date={date.clone()} month={this.state.month} select={this.select} selected={this.props.selected} />);
+                        date.add(1, "w");
+                        done = count++ > 2 && monthIndex !== date.month();
+                        monthIndex = date.month();
+                    }
+					
+					return weeks;
+				},
+				
+				renderMonthLabel: function() {
+					return <span>{this.state.month.format("MMMM, YYYY")}</span>;
+				},
+			});
+			
+			var DayNames = React.createClass({
+				render: function() {
+					return <div className="week names">
+						<span className="day">Sun</span>
+						<span className="day">Mon</span>
+						<span className="day">Tue</span>
+						<span className="day">Wed</span>
+						<span className="day">Thu</span>
+						<span className="day">Fri</span>
+						<span className="day">Sat</span>
+					</div>;
+				}
+			});
+			
+			var Week = React.createClass({
+				render: function() {
+					var days = [],
+						date = this.props.date,
+						month = this.props.month;
+						
+                    for (var i = 0; i < 7; i++) {
+                        var day = {
+                            name: date.format("dd").substring(0, 1),
+                            number: date.date(),
+                            isCurrentMonth: date.month() === month.month(),
+                            isToday: date.isSame(new Date(), "day"),
+                            date: date
+                        };
+						days.push(<span key={day.date.toString()} className={"day" + (day.isToday ? " today" : "") + (day.isCurrentMonth ? "" : " different-month") + (day.date.isSame(this.props.selected) ? " selected" : "")} onClick={this.props.select.bind(null, day)}>{day.number}</span>);
+                        date = date.clone();
+                        date.add(1, "d");
+						
+                    }
+					
+					return <div className="week" key={days[0].toString()}>
+						{days}
+					</div>;
+				}
+			});
+			
+			React.render(<Calendar selected={moment().startOf("day")} />, document.getElementById("calendar"));
+		</script>
+		
+		<script type="text/html">
+			var app = angular.module("demo", []);
+
+            app.controller("calendarDemo", function($scope) {
+                $scope.day = moment();
+            });
+
+            app.directive("calendar", function() {
+                return {
+                    restrict: "E",
+                    templateUrl: "templates/calendar.html",
+                    scope: {
+                        selected: "="
+                    },
+                    link: function(scope) {
+                        scope.selected = _removeTime(scope.selected || moment());
+                        scope.month = scope.selected.clone();
+
+                        var start = scope.selected.clone();
+                        start.date(1);
+                        _removeTime(start.day(0));
+
+                        _buildMonth(scope, start, scope.month);
+
+                        scope.select = function(day) {
+                            scope.selected = day.date;  
+                        };
+
+                        scope.next = function() {
+                            var next = scope.month.clone();
+                            _removeTime(next.month(next.month()+1).date(1));
+                            scope.month.month(scope.month.month()+1);
+                            _buildMonth(scope, next, scope.month);
+                        };
+
+                        scope.previous = function() {
+                            var previous = scope.month.clone();
+                            _removeTime(previous.month(previous.month()-1).date(1));
+                            scope.month.month(scope.month.month()-1);
+                            _buildMonth(scope, previous, scope.month);
+                        };
+                    }
+                };
+
+                function _removeTime(date) {
+                    return date.day(0).hour(0).minute(0).second(0).millisecond(0);
+                }
+
+                function _buildMonth(scope, start, month) {
+                    scope.weeks = [];
+                    var done = false, date = start.clone(), monthIndex = date.month(), count = 0;
+                    while (!done) {
+                        scope.weeks.push({ days: _buildWeek(date.clone(), month) });
+                        date.add(1, "w");
+                        done = count++ > 2 && monthIndex !== date.month();
+                        monthIndex = date.month();
+                    }
+                }
+
+                function _buildWeek(date, month) {
+                    var days = [];
+                    for (var i = 0; i < 7; i++) {
+                        days.push({
+                            name: date.format("dd").substring(0, 1),
+                            number: date.date(),
+                            isCurrentMonth: date.month() === month.month(),
+                            isToday: date.isSame(new Date(), "day"),
+                            date: date
+                        });
+                        date = date.clone();
+                        date.add(1, "d");
+                    }
+                    return days;
+                }
+            });
+		</script>
+	</head>
+	<body>
+		<h1>Calendar Demo</h1>
+		<span>This page demonstrates the use of a calendar control built with React JS. It allows the user to choose a date.</span>
+		<span>The calendar itself is a React JS class, and I'm using LESS CSS for some of the more complicated CSS rules. I'm also make use of Moment.js, a library that allows for easier manipulation of time than the standard JavaScript libraries. I highly recommend you check them out.</span>
+		
+        <div id="calendar"></div>
+	</body>
+</html>

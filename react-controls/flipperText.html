@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>Animated flip tile using Angular JS</title>
+	</head>
+	<body>
+		<h2>Animated Flip Tile Using AngularJS</h2>
+		
+		<p>
+			Today, I'm going to explain how to create a flipping tile using CSS3 animations and Angular JS. If you've never used Angular JS,
+			you're missing out. You can check it out <a target="_blank" href="https://angularjs.org/">here</a>. I'm going to be using LESS CSS for some of the more
+			advanced CSS because it allows us to completely ignore vendor prefixes through the use of LESS mixins. If you've never used LESS CSS
+			either, I suggest you read up on it <a href="http://lesscss.org/" target="_blank">here</a>. It's definitely worth picking up a CSS language, even if it's
+			not LESS.
+		</p>
+		
+		<p>
+			Angular JS is great. It allows the user to almost completely remove the need for DOM manipulation inside controllers, and while some
+			DOM manipulation is somewhat necessary, that code can be encapsulated inside directives and in many cases, can be eliminated all
+			together. The less DOM access, the better, as it allows for easy unit testing. The flip tile we're going to be creating today uses no
+			DOM manipulation at all, so mission accomplished. If you're the kind of reader who just needs to see it in action from start to finish,
+			I've built a demo that shows the flip tiles in action. You can check it out <a href="http://chrisharrington.github.io/demos/flipper.html" target="_blank">here</a>.
+			If, on the other hand, you want to see exactly how I put this whole thing together, and how it all works, read on!
+		</p>
+		
+		<p>
+			I'm going to break down the write up into a couple of different sections. First, the HTML. It's pretty straightforward, but I'll go
+			over each of the Angular JS directives that I'm using, and what they all do. Then, we'll walk through the JavaScript code, which shows
+			how I'm using Angular JS to add and remove the appropriate CSS classes to perform the animation. Finally, I'll describe what I'm doing
+			with each off the CSS rules that actually cause the flip tiles to move around.
+		</p>
+		
+		<p>
+			<b>Note:</b> The CSS shown here might not match up with exactly what you see on the demo page because I want the demo to look at least
+			halfway decent with some pretty styling. For the most part, though, I'm going to try to keep the CSS on the tutorial as bare as possible.
+		</p>
+		
+		<h3>The HTML</h3>
+		
+		<p>First, the HTML. It makes use of a couple of custom directives, which I'll go over shortly.</p>
+		
+		<h4>Example</h4>
+		
+		<pre>
+&lt;flipper flipped="flipped" horizontal&gt;
+	&lt;front&gt;
+		the front!
+	&lt;/front&gt;
+	&lt;back&gt;
+		the back!
+	&lt;/back&gt;
+&lt;/flipper&gt;
+
+&lt;flipper flipped="flipped" vertical&gt;
+	&lt;div class="front tile"&gt;
+		the front!
+	&lt;/div&gt;
+	&lt;div class="back tile"&gt;
+		the back!
+	&lt;/div&gt;
+&lt;/flipper&gt;
+		</pre>
+		
+		<h4>Flipper Template</h4>
+		
+		<pre>
+&lt;div class="flipper" ng-transclude ng-class="{ flipped: flipped }"&gt;&lt;/div&gt;
+		</pre>
+		
+		<h4>Front Template</h4>
+
+		<pre>
+&lt;div class="front tile"&gt;&lt;/div&gt;
+		</pre>
+		
+		<h4>Back Template</h4>
+		
+		<pre>
+&lt;div class="back tile"&gt;&lt;/div&gt;
+		</pre>
+		
+		<p>
+			Ok, there's a couple of things going on here. The first is that I'm using a custom directive ("flipper") to encapsulate the flipper. Additionally,
+			it contains two more custom directives ("front" and "back"), within which we can put our content. I've unoriginally put "the front!" and
+			"the back!" for the content, but you can put whatever you like in there, obviously including more HTML tags. We'll set some configuration options
+			on the directive so that the content inside the front and back tags magically appears inside the rendered HTML. I'll go over that
+			below.
+		</p>
+		
+		<p>
+			The flipper tag has a couple of attributes. The first is "flipped", indicating which Angular JS variable should be passed into the
+			inner flipper scope. Angular JS will watch changes to variables passed in this manner, so all we have to do is wire up our directive template
+			to apply a CSS class where appropriate. The second is the "horizontal" or "vertical" tag, which tells the indicates which direction the tile
+			should flip. This corresponds to different CSS classes being applied to the elements when the "flipped" variable changes.
+		</p>
+		
+		<p>
+			The flipper directive is also straightforward, making use of a couple of Angular-built directives, namely ng-transclude and ng-class. The ng-class
+			directive indicates that if the "flipped" variable is truthy, the flipped class should be added to the div, and removed if not. The ng-transclude
+			directive signifies that the inner contents of this tag should be the child contents of the tag as written on the parent. This includes the front and
+			back custom directives, which are two separate custom directives. The "front" tag contains content that should go on the front of the
+			tile, while the "back" tag unsurprisingly contains content that will show up once the tile has flipped. You can put whatever you want in here, be
+			it HTML or text. In the example, I've got some indicator text in there. <b>Note:</b> While you can put almost any styled HTML in these tiles, make
+			sure that you're not doing any absolute positioning with nested elements. The front and back sides of the tile are absolutely positioned, so
+			adding more of that will complicate matters.
+		</p>
+		
+		<h3>JavaScript</h3>
+		
+		<p>
+			Here's where all the Angular JS magic happens. I'll paste the whole thing in here, which includes the app initialization as well as the custom
+			directive code.
+		</p>
+		
+		<pre>
+var app = angular.module("demo", []);
+
+app.controller("flipperDemo", function($scope) {
+	$scope.flipped = false;
+
+	$scope.flip = function() {
+		$scope.flipped = !$scope.flipped;
+	};
+});
+
+app.directive("flipper", function() {
+	return {
+		restrict: "E",
+		template: "&lt;div class='flipper' ng-transclude ng-class='{ flipped: flipped }'&gt;&lt;/div&gt;",
+		transclude: true,
+		scope: {
+			flipped: "="
+		}
+	};
+});
+
+app.directive("front", function() {
+	return {
+		restrict: "E",
+		template: "&lt;div class='front tile' ng-transclude&gt;&lt;/div&gt;",
+		transclude: true
+	};
+});
+
+app.directive("back", function() {
+	return {
+		restrict: "E",
+		template: "&lt;div class='back tile' ng-transclude&gt;&lt;/div&gt;",
+		transclude: true
+	}
+});
+		</pre>
+		
+		<p>
+			I'm going to assume that the reader is at least somewhat familiar with how to set up an Angular JS app, but the code is up there anyway.
+			You'll also need to specify ng-app="demo" on your HTML tag (see the example page source to see this in action). The controller I've set up
+			contains just a single scope variable: flipped. This is the variable the flipper directive needs access to to determine its inner state,
+			specifically whether to display the front or the back tile. It also sets a method on the controller scope, flip, which toggles the flipped
+			variable. It's initially set to false, indicating that the tile should show the front by default.
+		</p>
+		
+		<p>
+			Then, we've got the three directive statements. The flipper directive is the most complicated, but it's straightforward nonetheless. First,
+			I'm restricting this directive to an element. Angular JS directives can appear in a number of different forms, including an element (HTML tag),
+			an attribute and a class name. In this case, the element makes the most sense, so we indicate that with an "E". Next, we specify the template for the flipper. Because the flipper's
+			template is just a single line, I've opted to put this inline in the directive definition, but for more complicated directives, it's best
+			practice to move this to a separate file. You'll have to change "template" to "templateUrl" for that to work, however. The "transclude" option
+			indicates that we want to take the child elements (or text) and put it inside the element annotated with the "ng-transclude" attribute, which
+			you can see in the template text. We're creating an isolated scope with just a single variable, flipped. The equals sign indicates that this is a
+			two way binding, meaning that we can read the value from the parent scope and also set it in the event we need to.
+		</p>
+		
+		<p>
+			The front and back directives are even simpler than the flipper and contain only a single difference: the front or back CSS class. Note that they're
+			also using transclusion to render child elements in the built HTML.
+		</p>
+		
+		<h4>CSS</h4>
+		
+		<pre>
+.tile { color:white; padding:15px; box-sizing:border-box; -moz-box-sizing:border-box; }
+		
+flipper {
+    float:left;
+    width:250px;
+    height:250px;
+    margin-right:15px;
+    display:block;
+    perspective:1000;
+    
+    span {
+        color:white;
+    }
+    
+    &gt;div.flipper {
+        float:left;
+        width:100%;
+        height:100%;
+        position:relative;
+        transform-style:preserve-3d;
+        
+        .front, .back {
+            float:left;
+            display:block;
+            width:100%;
+            height:100%;
+            backface-visibility:hidden;
+            position:absolute;
+            top:0;
+            left:0;
+            transform-style:preserve-3d;
+            transition:transform ease 500ms;
+        }
+
+        .front {
+            z-index:2;
+            background:#19489E;
+
+            /* front tile styles go here! */
+        }
+
+        .back {
+            background:#9E1919;
+
+            /* back tile styles go here! */
+        }
+    }
+}
+
+flipper[horizontal] {
+    .front {
+        transform:rotateY(0deg);
+    }
+
+    .back {
+        transform:rotateY(-180deg);
+    }
+
+    div.flipper.flipped {
+        .front {
+            transform:rotateY(180deg);
+        }
+
+        .back {
+            transform:rotateY(0deg);
+        }
+    }
+}
+
+flipper[vertical] {
+    .front {
+        transform:rotateX(0deg);
+    }
+
+    .back {
+        transform:rotateX(-180deg);
+    }
+
+    div.flipper.flipped {
+        .front {
+            transform:rotateX(180deg);
+        }
+
+        .back {
+            transform:rotateX(0deg);
+        }
+    }
+}
+		</pre>
+		
+		<p>
+			I've left out a bunch of the vendor-specific CSS rules for brevity's sake. The <a href="http://chrisharrington.github.io/demos/flipper.html" target="_blank">demo</a> page has the full CSS rules to make the flipper work in all browsers, though, so if you need to see them, check it out. You'll note that I'm referencing my custom directives in the CSS, which is no problem; the browser
+			doesn't care what HTML tag we're using and will apply styles regardless.
+		</p>
+		
+		<p>
+			There are a couple of fancy CSS rules that are in play here. I'll go through them all and describe what they're doing.
+			
+			<ul>
+				<li>
+					<b>transform-style</b>
+					<p>The transform-style rule unsurprisingly indicates a style for the transform. In this example, we're only interested in the preserve-3d value,
+					which indicates that any nested elements should preserve their rendering style in the third dimension. It means nothing without the transform
+					CSS rule, which we're also using. This is what gives the illusion of the tile flipping. Without it, the tile would appear to shrink and grow
+					instead of flipping in 3D.</p>
+				</li>
+				<li>
+					<b>perspective</b>
+					<p>This defines where the orientation and distance the viewer has of the 3D transformation. That sounds a little strange, but basically, it
+					defines the number of pixels the rendered element is from the view.</p>
+				</li>
+				<li>
+					<b>backface-visibility</b>
+					<p>This property indicates the visibility status of the reverse side of elements. This makes no sense for static elements on a page, but
+					in our case, it's important to hide the reverse side so we don't see a flipped version of the tile. In our example, the text "the front!"
+					is printed on both the front and back of the tile. If we set this property to hidden, only the front side is visible.</p>
+				</li>
+			</ul>
+		</p>
+	
+		<h3>Conclusion</h4>
+	
+		<p>And that's it! Thanks for reading. Once again, if you'd like to view these flip tiles in action, you can take a look at the demo page <a href="http://chrisharrington.github.io/demos/flipper.html" target="_blank">here</a>.</p>
+	</body>
+</html>

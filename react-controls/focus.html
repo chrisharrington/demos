@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+
+<html ng-app="demo">
+	<head>
+		<title>Angular JS Focus Text</title>
+		
+		<style type="text/less">
+			body { font-family:Arial; font-size:14px; }
+			body>span, body>h1 { float:left; width:100%; margin:0; padding:0; margin-bottom:10px; }
+			
+			span { color:#888888;
+                >b { color:black; }
+            }
+			
+			@spacing:10px;
+			@select-colour:#2875C7;
+			
+			.vertical-centre (@height) { height:@height; line-height:@height !important; display:inline-block; vertical-align:middle; }
+            .border-box { box-sizing:border-box; -moz-box-sizing:border-box; }
+			.border-radius { border-radius:3px; }
+			.transition (@value1,@value2:X,...) { @value: ~`"@{arguments}".replace(/[\[\]]|\,\sX/g, '')`; -webkit-transition: @value; -moz-transition: @value; -ms-transition: @value; -o-transition: @value; transition: @value; }
+			.transform (@value1,@value2:X,...) { @value: ~`"@{arguments}".replace(/[\[\]]|\,\sX/g, '')`; transform:@value; -ms-transform:@value; -webkit-transform:@value; -o-transform:@value; -moz-transform:@value; }
+			
+			text { float:left; display:block; width:250px; border:solid 1px #AAA; margin-right:15px;
+				div.text-container { float:left; width:100%; text-align:inherit;
+					>input { float:left; width:100%; -webkit-appearance:none; text-align:inherit; padding:@spacing; border:none; font-size:0.875em; background:white; outline:none; .border-box; .border-radius; .transition(background ease 250ms); }
+					>div.focus { float:left; width:100%; margin-top:-1px; position:relative; height:1px; background:transparent; border-color:transparent;
+						>div { position:absolute; z-index:2; width:100%; .transform(scale(0, 1)); height:2px; margin-top:-1px; background:@select-colour; .transition(all ease 250ms); }
+					}
+				}
+				
+				&.focus {
+					input { background:#DEE9FA !important; }
+					div.focus>div { .transform(scale(1, 1)) !important; }
+				}
+				&.error {
+					div.focus>div { background:red !important; }	
+				}
+				&.focus.error {
+					input { background:rgba(255, 0, 0, 0.125) !important; }
+				}
+			}
+		</style>
+		
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular.min.js"></script>
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.5/less.min.js"></script>
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+		
+		<script type="text/javascript">
+			var app = angular.module("demo", []);
+
+            app.controller("textDemo", function($scope) {
+                $scope.value = "";
+				$scope.error = "";
+            });
+			
+			app.directive("text", function() {
+				return {
+					restrict: "E",
+					templateUrl: "templates/focus.html",
+					scope: {
+						type: "@",
+						placeholder: "@",
+						ngModel: "="
+					},
+					compile: function(element) {
+						$(element).on("focus", "input", function() {
+							$(element).addClass("focus");
+						});
+
+						$(element).on("blur", "input", function() {
+							$(element).removeClass("focus");
+						});
+					}
+				}
+			});
+		</script>
+	</head>
+	<body ng-controller="textDemo">
+		<h1>Focus Text Demo</h1>
+		<span>This page demonstrates the use of a focus text control built in Angular JS. It replaces an input of type text and provides some fancy animations and highlight options for when the user focuses on it.</span>
+		<span>The focus text input itself is an Angular JS directive, and I'm using LESS CSS for some of the more complicated CSS rules. I highly recommend you check them out.</span>
+		
+		<text type="text" placeholder="Focus here..." ng-model="value"></text>
+		<text class="error" placeholder="Error!" ng-model="error"></text>
+	</body>
+</html>
