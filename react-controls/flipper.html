@@ -3,7 +3,7 @@
 <html ng-app="demo">
 	<head>
 		<meta name="viewport" content="width=device-width" />
-		<title text="">Flipper Demo</title>
+		<title text="">React JS Flipper Demo</title>
 		
 		<style type="text/less">
 			.transition (@value1,@value2:X,...) { @value: ~`"@{arguments}".replace(/[\[\]]|\,\sX/g, '')`; -webkit-transition: @value; -moz-transition: @value; -ms-transition: @value; -o-transition: @value; transition: @value; }
@@ -23,7 +23,7 @@
 			}
 			
 			
-			flipper { float:left; width:250px; height:250px; margin-right:15px; display:block; .perspective;
+			.flipper-container { float:left; width:250px; height:250px; margin-right:15px; display:block; .perspective;
 				span { color:white; }
 				>div.flipper { float:left; width:100%; height:100%; position:relative; .transform-style(preserve-3d);
 					.front, .back { float:left; display:block; width:100%; height:100%; .backface-visibility-hidden; position:absolute; top:0; left:0; .transform-style(preserve-3d); .transition(-webkit-transform ease 500ms); .transition(transform ease 500ms); }
@@ -43,7 +43,7 @@
 				}
 			}
 			
-			flipper[horizontal] {
+			.flipper-container.horizontal {
 				.front { .transform(rotateY(0deg)); }
 				.back { .transform(rotateY(-180deg)); }
 				
@@ -53,7 +53,7 @@
 				}
 			}
 			
-			flipper[vertical] {
+			.flipper-container.vertical {
 				.front { .transform(rotateX(0deg)); }
 				.back { .transform(rotateX(-180deg)); }
 				
@@ -64,73 +64,66 @@
 			}
 		</style>
 		
-		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular.min.js"></script>
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/react/0.12.2/react.js"></script>
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/react/0.12.2/JSXTransformer.js"></script>
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.5/less.min.js"></script>
 		
-		<script type="text/javascript">
-			var app = angular.module("demo", []);
-
-			app.controller("flipperDemo", function($scope) {
-				$scope.flipped = false;
-				
-				$scope.flip = function() {
-					$scope.flipped = !$scope.flipped;
-				};
-			});
+		<script type="text/jsx">
+			var App = React.createClass({
+				getInitialState: function() {
+					return {
+						flipped: false
+					};
+				},
 			
-			app.directive("flipper", function($rootScope, $timeout) {
-				return {
-					restrict: "E",
-					templateUrl: "templates/flipper.html",
-					transclude: true,
-					scope: {
-						flipped: "="
-					}
-				};
-			});
+				flip: function() {
+					this.setState({ flipped: !this.state.flipped });
+				},
 			
-			app.directive("front", function() {
-				return {
-					restrict: "E",
-					template: "<div class='front tile' ng-transclude></div>",
-					transclude: true
-				};
-			});
-			
-			app.directive("back", function() {
-				return {
-					restrict: "E",
-					template: "<div class='back tile' ng-transclude></div>",
-					transclude: true
+				render: function() {
+					return <div>
+						<Flipper flipped={this.state.flipped} orientation="horizontal" />
+						<Flipper flipped={this.state.flipped} orientation="vertical" />
+						
+						<div className="button-container">
+							<button onClick={this.flip}>Flip!</button>
+						</div>
+					</div>;
 				}
 			});
+		
+			var Flipper = React.createClass({
+				render: function() {
+					return <div className={"flipper-container " + this.props.orientation}>
+						<div className={"flipper" + (this.props.flipped ? " flipped" : "")}>
+							<Front>the front!</Front>
+							<Back>the back!</Back>
+						</div>
+					</div>;
+				}
+			});
+			
+			var Front = React.createClass({
+				render: function() {
+					return <div className="front tile">{this.props.children}</div>;
+				}
+			});
+			
+			var Back = React.createClass({
+				render: function() {
+					return <div className="back tile">{this.props.children}</div>;
+				}
+			});
+			
+			var flipped = false;
+			React.render(<App />, document.getElementById("app"));
 		</script>
 	</head>
-	<body ng-controller="flipperDemo">
+	<body>
 		<h1>Flipper Demo</h1>
 		<span>This page demonstrates how a panel can be flipped to show more information. Handy for diving down just one level.</span>
-		<span>The flipper itself is an Angular JS directive, and I'm using LESS CSS for some of the more complicated CSS rules. I highly recommend you check them out.</span>
+		<span>The flipper itself is an React JS class, and I'm using LESS CSS for some of the more complicated CSS rules. I highly recommend you check them out.</span>
 		
-		<flipper flipped="flipped" horizontal>
-			<front>
-				the front!
-			</front>
-			<back>
-				the back!
-			</back>
-		</flipper>
-		
-		<flipper flipped="flipped" vertical>
-			<front>
-				the front!
-			</front>
-			<back>
-				the back!
-			</back>
-		</flipper>
-		
-		<div class="button-container">
-			<button ng-click="flip()">Flip!</button>
-		</div>
+		<div id="app"></div>
 	</body>
 </html>
