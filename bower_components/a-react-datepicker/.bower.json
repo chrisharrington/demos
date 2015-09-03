@@ -1,6 +1,6 @@
 {
   "name": "a-react-datepicker",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "homepage": "https://github.com/chrisharrington/a-react-datepicker",
   "authors": [
     "Chris Harrington <chrisharrington99@gmail.com>"
@@ -30,14 +30,13 @@
   "dependencies": {
     "react": "~0.13.2"
   },
-  "_release": "0.1.3",
+  "_release": "0.1.4",
   "_resolution": {
     "type": "version",
-    "tag": "v0.1.3",
-    "commit": "8c4e9b674b7e9cd6a07b3d0d2f4ff3b5cabe124a"
+    "tag": "v0.1.4",
+    "commit": "1d6f8410853685d2278c904cb844c0affcab31c9"
   },
   "_source": "https://github.com/chrisharrington/a-react-datepicker.git",
-  "_target": "~0.1.3",
-  "_originalSource": "a-react-datepicker",
-  "_direct": true
+  "_target": "*",
+  "_originalSource": "a-react-datepicker"
 }
