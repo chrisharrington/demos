@@ -1,0 +1,329 @@
+I've recently been a pretty big fan of React JS and have been building most of my newer projects using it in combination with LESS and Webpack (both of which are awesome, although I hear the former is a little out of fashion in lieu of SCSS these days). Today, I'm going to be writing about how to create a date picker using React. I've made the <a href="https://github.com/chrisharrington/a-react-datepicker" target="_blank">source</a> available and even published a bower package (<a href="http://bower.io/search/?q=a-react-datepicker" target="_blank">a-react-datepicker</a>) in the event you want to use it in your fancy new React project. I wouldn't call it anywhere near production ready, though, so be warned! For those of you who just want to see the date picker in action, I've put together a <a href="http://chrisharrington.github.io/demos/react/date-picker/" target="_blank">simplistic demo page</a> that shows what you're getting into. Anyway, on with the show!
+
+<!--more-->
+
+<h2>The Plan</h2>
+
+Here's a breakdown of each of the classes I'll be using and what they're designed to accomplish.
+
+<ul>
+  <li><b>DatePicker</b> - the containing class. It's responsible for maintaining state pertaining to the date picker as a whole, as well as building both the trigger and the floating calendar.</li>
+  <li><b>Calendar</b> - the class used to render the floating panel containing everything the user interacts with outside of the trigger.</li>
+  <li><b>MonthHeader</b> - the header detailing the current month inside the <b>Calendar</b> class. It also contains left and right arrows used to allow the user to navigate between months.
+  <li><b>WeekHeader</b> - a simple class for showing the user the list of days in a week.</li>
+  <li><b>Weeks</b> - a class used to contain each of the rows of days that the user will select.</li>
+  <li><b>Week</b> - represents a row of days. The user will be able to select one of those days. Various style changes to these days indicate different states: selected, today, disabled, etc.
+</ul>
+
+<b>Note:</b> I won't be covering much of the CSS in this article, as it's outside the scope of what I want to impart. If you're interested in what styles are used, feel free to take a look at either the <a href="http://chrisharrington.github.io/demos/react/date-picker/" target="_blank">demo page</a> or the <a href="https://github.com/chrisharrington/a-react-datepicker" target="_blank">source</a>.
+
+<h3>DatePicker</h3>
+
+[code language="javascript"]
+var DatePicker = React.createClass({
+    getInitialState: function() {
+        var def = this.props.selected || new Date();
+    	return {
+            view: DateUtilities.clone(def),
+            selected: DateUtilities.clone(def),
+    	    minDate: null,
+    	    maxDate: null,
+    	    visible: false
+    	};
+    },
+
+    componentDidMount: function() {
+    	document.addEventListener("click", function(e) {
+            if (this.state.visible && e.target.className !== "date-picker-trigger" && !this.parentsHaveClassName(e.target, "date-picker"))
+                this.hide();
+    	}.bind(this));
+    },
+
+    parentsHaveClassName: function(element, className) {
+    	var parent = element;
+    	while (parent) {
+            if (parent.className && parent.className.indexOf(className) > -1)
+                return true;
+
+            parent = parent.parentNode;
+	}
+    },
+
+    setMinDate: function(date) {
+        this.setState({ minDate: date });
+    },
+
+    setMaxDate: function(date) {
+        this.setState({ maxDate: date });
+    },
+
+    onSelect: function(day) {
+        this.setState({ selected: day });
+        this.props.onSelect(day);
+        this.hide();
+    },
+
+    show: function() {
+        this.setState({ visible: true });
+    },
+
+    hide: function() {
+        this.setState({ visible: false });
+    },
+
+    render: function() {
+        return React.createElement("div", {className: "ardp-date-picker"},
+            React.createElement("input", {type: "text", className: "date-picker-trigger", readOnly: true, value: DateUtilities.toString(this.state.selected), onClick: this.show}),
+
+            React.createElement(Calendar, {visible: this.state.visible, view: this.state.view, selected: this.state.selected, onSelect: this.onSelect, minDate: this.state.minDate, maxDate: this.state.maxDate})
+        );
+    }
+});
+</code></pre>
+
+First, the <u>getInitialState</u> function defines a few noteworthy things: the <u>view</u> and <u>selected</u> properties, the former of which is used to determine which month the user is viewing while the latter is the selected day. The <u>minDate</u> and <u>maxDate</u> properties are used to block the user from selecting dates before or after the specified values, respectively.
+
+When the <b>DatePicker</b> mounts, we listen to when the user clicks anywhere on the document to hide the <b>Calendar</b> if necessary. I'm checking class names of the clicked element and recursively check the parent elements to make sure I'm not closing it prematurely.
+
+The <u>setMinDate</u> and <u>setMaxDate</u> methods are used for just that: setting the boundaries for the selectable date range. The <u>show</u> and <u>hide</u> methods are pretty self-explanatory, and set the <u>visible</u> state property to true and false, respectively.
+
+The <u>render</u> method is responsible for writing out two things: first, the trigger for the <b>Calendar</b> (a read-only input field, in this case) and the <b>Calendar</b> class.
+
+<h3>Calendar</h3>
+
+[code language="javascript"]
+var Calendar = React.createClass({
+    onMove: function(view, isForward) {
+        this.refs.weeks.moveTo(view, isForward);
+    },
+
+    onTransitionEnd: function() {
+    	this.refs.monthHeader.enable();
+    },
+
+    render: function() {
+    	return React.createElement("div", {className: "calendar" + (this.props.visible ? " visible" : "")},
+    		React.createElement(MonthHeader, {ref: "monthHeader", view: this.props.view, onMove: this.onMove}),
+    		React.createElement(WeekHeader, null),
+    		React.createElement(Weeks, {ref: "weeks", view: this.props.view, selected: this.props.selected, onTransitionEnd: this.onTransitionEnd, onSelect: this.props.onSelect, minDate: this.props.minDate, maxDate: this.props.maxDate})
+    	);
+    }
+});
+</code></pre>
+
+The main responsibility of the <b>Calendar</b> class is to provide an absolutely positioned canvas with which the user can interact. It renders the <b>MonthHeader</b>, <b>WeekHeader</b> and <b>Weeks</b> classes. It also provides a go-between to tie the previous/next month events in the <b>MonthHeader</b> class to state updates in the <b>Weeks</b> class. The <u>onTransitionEnd</u> method is fired after the transition between months has finished, indicating that the previous/next month buttons in <b>MonthHeader</b> class should become re-enabled.
+
+<h3>Month Header</h3>
+
+[code language="javascript"]
+var MonthHeader = React.createClass({
+    getInitialState: function() {
+        return {
+            view: DateUtilities.clone(this.props.view),
+            enabled: true
+        };
+    },
+
+    moveBackward: function() {
+        var view = DateUtilities.clone(this.state.view);
+        view.setMonth(view.getMonth()-1);
+        this.move(view, false);
+    },
+
+    moveForward: function() {
+        var view = DateUtilities.clone(this.state.view);
+        view.setMonth(view.getMonth()+1);
+        this.move(view, true);
+    },
+
+    move: function(view, isForward) {
+        if (!this.state.enabled)
+    	    return;
+
+    	this.setState({
+    	    view: view,
+    	    enabled: false
+    	});
+
+    	this.props.onMove(view, isForward);
+    },
+
+    enable: function() {
+    	this.setState({ enabled: true });
+    },
+
+    render: function() {
+    	var enabled = this.state.enabled;
+    	return React.createElement("div", {className: "month-header"},
+            React.createElement("i", {className: (enabled ? "" : " disabled"), onClick: this.moveBackward}, String.fromCharCode(9664)),
+            React.createElement("span", null, DateUtilities.toMonthAndYearString(this.state.view)),
+            React.createElement("i", {className: (enabled ? "" : " disabled"), onClick: this.moveForward}, String.fromCharCode(9654))
+    	);
+    }
+});
+</code></pre>
+
+The <b>MonthHeader</b> class is responsible for two things: informing the user which month they're currently viewing, and changing the month using the previous and next month arrows on the left and right. The state contains the currently viewed month (from which the month/year label is derived) and an enabled flag, which is set to false to make the previous and next month buttons unresponsive. This is useful for preventing the user from flying through the months faster than the transition effects.
+
+<h3>WeekHeader</h3>
+
+[code language="javascript"]
+var WeekHeader = React.createClass({
+    render: function() {
+        return React.createElement("div", {className: "week-header"},
+            React.createElement("span", null, "Sun"),
+            React.createElement("span", null, "Mon"),
+            React.createElement("span", null, "Tue"),
+            React.createElement("span", null, "Wed"),
+            React.createElement("span", null, "Thu"),
+            React.createElement("span", null, "Fri"),
+            React.createElement("span", null, "Sat")
+    	);
+    }
+});
+</code></pre>
+
+The simplest of the classses I'm outlining, the <b>WeekHeader</b> class is responsible for just one thing: showing the user the list of shortened days at the top of the rows of days. There's literally nothing else to say about this class.
+
+<h3>Weeks</h3>
+
+[code language="javascript"]
+var Weeks = React.createClass({
+    getInitialState: function() {
+        return {
+            view: DateUtilities.clone(this.props.view),
+            other: DateUtilities.clone(this.props.view),
+            sliding: null
+        };
+    },
+
+    componentDidMount: function() {
+        this.refs.current.getDOMNode().addEventListener("transitionend", this.onTransitionEnd);
+    },
+
+    onTransitionEnd: function() {
+    	this.setState({
+            sliding: null,
+    	    view: DateUtilities.clone(this.state.other)
+    	});
+
+    	this.props.onTransitionEnd();
+    },
+
+    getWeekStartDates: function(view) {
+        view.setDate(1);
+    	view = DateUtilities.moveToDayOfWeek(DateUtilities.clone(view), 0);
+
+        var current = DateUtilities.clone(view);
+        current.setDate(current.getDate()+7);
+
+        var starts = [view],
+    	    month = current.getMonth();
+
+    	while (current.getMonth() === month) {
+    	    starts.push(DateUtilities.clone(current));
+            current.setDate(current.getDate()+7);
+    	}
+
+    	return starts;
+    },
+
+    moveTo: function(view, isForward) {
+    	this.setState({
+            sliding: isForward ? "left" : "right",
+            other: DateUtilities.clone(view)
+    	});
+    },
+
+    render: function() {
+    	return React.createElement("div", {className: "weeks"},
+    	    React.createElement("div", {ref: "current", className: "current" + (this.state.sliding ? (" sliding " + this.state.sliding) : "")},
+    	        this.renderWeeks(this.state.view)
+    	    ),
+
+            React.createElement("div", {ref: "other", className: "other" + (this.state.sliding ? (" sliding " + this.state.sliding) : "")},
+    	        this.renderWeeks(this.state.other)
+    	    )
+    	);
+    },
+
+    renderWeeks: function(view) {
+        var starts = this.getWeekStartDates(view),
+    	    month = starts[1].getMonth();
+
+    	return starts.map(function(s, i) {
+    	    return React.createElement(Week, {key: i, start: s, month: month, selected: this.props.selected, onSelect: this.props.onSelect, minDate: this.props.minDate, maxDate: this.props.maxDate});
+    	}.bind(this));
+    }
+});
+</code></pre>
+
+The <b>Weeks</b> class wraps up an appropriate number of <b>Week</b> class instances depending on the month, which is calculated in the <u>getWeekStartDates</u> function. When the component mounts, we're hooking into the <u>transitionend</u> event of the weeks wrapper, which is what moves when the user initiates a previous or next month action. To accomplish the animation, we've got two sets of weeks: the first ("current") which is the one currently being viewed by the user, and the last ("other") which is offscreen. When the user clicks on the next month action, the <b>MonthHeader</b> class fires the <u>onMove</u> prop function up to the <b>Calendar</b> class, which in turn informs the <b>Weeks</b> class that a next month action has been fired. The hidden list of days gets updated to the appropriate month, then it and the current view slide to the left. Once the transition ends, the current view (which is now off screen to the left) gets updated with the selected month and snaps back into place, sans animation, and the process resets.
+
+[code language="javascript"]
+var Week = React.createClass({
+    buildDays: function(start) {
+        var days = [DateUtilities.clone(start)],
+            clone = DateUtilities.clone(start);
+
+        for (var i = 1; i <= 6; i++) {
+            clone = DateUtilities.clone(clone);
+            clone.setDate(clone.getDate()+1);
+            days.push(clone);
+        }
+        return days;
+    },
+
+    isOtherMonth: function(day) {
+        return this.props.month !== day.month();
+    },
+
+    getDayClassName: function(day) {
+        var className = "day";
+        if (DateUtilities.isSameDay(day, new Date()))
+            className += " today";
+        if (this.props.month !== day.getMonth())
+            className += " other-month";
+        if (this.props.selected && DateUtilities.isSameDay(day, this.props.selected))
+            className += " selected";
+        if (this.isDisabled(day))
+    	    className += " disabled";
+        return className;
+    },
+
+    onSelect: function(day) {
+        if (!this.isDisabled(day))
+            this.props.onSelect(day);
+    },
+
+    isDisabled: function(day) {
+        var minDate = this.props.minDate,
+    	    maxDate = this.props.maxDate;
+
+    	return (minDate && DateUtilities.isBefore(day, minDate)) || (maxDate && DateUtilities.isAfter(day, maxDate));
+    },
+
+    render: function() {
+        var days = this.buildDays(this.props.start);
+        return React.createElement("div", {className: "week"},
+            days.map(function(day, i) {
+                return React.createElement("div", {key: i, onClick: this.onSelect.bind(null, day), className: this.getDayClassName(day)}, DateUtilities.toDayOfMonthString(day))
+            }.bind(this))
+    	);
+    }
+});
+</code></pre>
+
+The final class, <b>Week</b> is responsible for rendering the list of days using the <u>start</u> prop. The <u>buildDays</u> function focuses on building the list of seven days for the week. The <u>render</u> method iterates through that list writing out a div to represent each day, making sure to apply the correct CSS class for the day's state, as given in the <u>getDayClassName</u> method. That div also has a click handler to allow the user to select the day. The <u>onSelect</u> prop propagates all the way up to the <b>DatePicker</b> class, which contains the selected day state.
+
+<h2>Conclusion</h2>
+
+This date picker isn't supposed to be used as a production-ready tool by any stretch of the imagination, and is mainly here to serve as a tutorial with the aim of teaching about React JS. That said, though, I did make it available in a bower package if you'd like to give it a shot in your application.
+
+<pre><code>
+bower install a-react-datepicker --save
+</code></pre>
+
+As I mentioned above, if you'd like to take a look at a really simple demo, <a href="" target="_blank">take a look</a>. The <a href="" target="_blank">source</a> is also available.
+
+If you have any questions, comment below. Thanks for reading!

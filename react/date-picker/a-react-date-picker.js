@@ -1,11 +1,54 @@
 "use strict";
 
+var DateUtilities = {
+    pad: function(value, length) {
+        while (value.length < length)
+            value = "0" + value;
+        return value;
+    },
+
+    clone: function(date) {
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+    },
+
+    toString: function(date) {
+        return date.getFullYear() + "-" + DateUtilities.pad((date.getMonth()+1, 2).toString() + "-" + DateUtilities.pad(date.getDate().toString(), 2));
+    },
+
+    toDayOfMonthString: function(date) {
+        return DateUtilities.pad(date.getDate().toString());
+    },
+
+    toMonthAndYearString: function(date) {
+        var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        return months[date.getMonth()] + " " + date.getFullYear();
+    },
+
+    moveToDayOfWeek: function(date, dayOfWeek) {
+        while (date.getDay() !== dayOfWeek)
+            date.setDate(date.getDate()-1);
+        return date;
+    },
+
+    isSameDay: function(first, second) {
+        return first.getFullYear() === second.getFullYear() && first.getMonth() === second.getMonth() && first.getDate() === second.getDate();
+    },
+
+    isBefore: function(first, second) {
+        return first.getTime() < second.getTime();
+    },
+
+    isAfter: function(first, second) {
+        return first.getTime() > second.getTime();
+    }
+};
+
 var DatePicker = React.createClass({displayName: "exports",
 	getInitialState: function() {
-        var def = this.props.selected || moment();
+        var def = this.props.selected || new Date();
 		return {
-			view: def.clone(),
-            selected: def.clone(),
+			view: DateUtilities.clone(def),
+            selected: DateUtilities.clone(def),
 			minDate: null,
 			maxDate: null,
 			visible: false
@@ -53,7 +96,7 @@ var DatePicker = React.createClass({displayName: "exports",
 
 	render: function() {
 		return React.createElement("div", {className: "date-picker"},
-			React.createElement("input", {type: "text", className: "date-picker-trigger", readOnly: true, value: this.state.selected.format("YYYY-MM-DD"), onClick: this.show}),
+			React.createElement("input", {type: "text", className: "date-picker-trigger", readOnly: true, value: DateUtilities.toString(this.state.selected), onClick: this.show}),
 
 			React.createElement(Calendar, {visible: this.state.visible, view: this.state.view, selected: this.state.selected, onSelect: this.onSelect, minDate: this.state.minDate, maxDate: this.state.maxDate})
 		);
@@ -81,17 +124,21 @@ var Calendar = React.createClass({displayName: "Calendar",
 var MonthHeader = React.createClass({displayName: "MonthHeader",
 	getInitialState: function() {
 		return {
-			view: this.props.view.clone(),
+			view: DateUtilities.clone(this.props.view),
 			enabled: true
 		};
 	},
 
     moveBackward: function() {
-		this.move(this.state.view.clone().add(-1, "months"), false);
+        var view = DateUtilities.clone(this.state.view);
+        view.setMonth(view.getMonth()-1);
+		this.move(view, false);
     },
 
     moveForward: function() {
-		this.move(this.state.view.clone().add(1, "months"), true);
+        var view = DateUtilities.clone(this.state.view);
+        view.setMonth(view.getMonth()+1);
+		this.move(view, true);
     },
 
 	move: function(view, isForward) {
@@ -114,7 +161,7 @@ var MonthHeader = React.createClass({displayName: "MonthHeader",
 		var enabled = this.state.enabled;
 		return React.createElement("div", {className: "month-header"},
             React.createElement("i", {className: "fa fa-angle-left" + (enabled ? "" : " disabled"), onClick: this.moveBackward}),
-            React.createElement("span", null, this.state.view.format("MMMM YYYY")),
+            React.createElement("span", null, DateUtilities.toMonthAndYearString(this.state.view)),
             React.createElement("i", {className: "fa fa-angle-right" + (enabled ? "" : " disabled"), onClick: this.moveForward})
 		);
 	}
@@ -137,8 +184,8 @@ var WeekHeader = React.createClass({displayName: "WeekHeader",
 var Weeks = React.createClass({displayName: "Weeks",
 	getInitialState: function() {
 		return {
-			view: this.props.view.clone(),
-			other: this.props.view.clone(),
+			view: DateUtilities.clone(this.props.view),
+			other: DateUtilities.clone(this.props.view),
 			sliding: null
 		};
 	},
@@ -150,21 +197,23 @@ var Weeks = React.createClass({displayName: "Weeks",
 	onTransitionEnd: function() {
 		this.setState({
 			sliding: null,
-			view: this.state.other.clone()
+			view: DateUtilities.clone(this.state.other)
 		});
 
 		this.props.onTransitionEnd();
 	},
 
     getWeekStartDates: function(view) {
-		var view = view.clone().day(0),
-         	starts = [view],
-			current = view.clone().add(1, "week"),
-			month = current.month();
+		var view = DateUtilities.moveToDayOfWeek(DateUtilities.clone(view), 0);
+        var current = DateUtilities.clone(view);
+        current.setDate(current.getDate()+7);
 
-		while (current.month() === month) {
-			starts.push(current.clone());
-			current = current.add(1, "week");
+        var starts = [view],
+			month = current.getMonth();
+
+		while (current.getMonth() === month) {
+			starts.push(DateUtilities.clone(current));
+            current.setDate(current.getDate()+7);
 		}
 
 		return starts;
@@ -173,7 +222,7 @@ var Weeks = React.createClass({displayName: "Weeks",
 	moveTo: function(view, isForward) {
 		this.setState({
 			sliding: isForward ? "left" : "right",
-			other: view.clone()
+			other: DateUtilities.clone(view)
 		});
 	},
 
@@ -190,7 +239,7 @@ var Weeks = React.createClass({displayName: "Weeks",
 
 	renderWeeks: function(view) {
 		var starts = this.getWeekStartDates(view),
-			month = starts[1].month();
+			month = starts[1].getMonth();
 
 		return _.map(starts, function(s, i) {
 			return React.createElement(Week, {key: i, start: s, month: month, selected: this.props.selected, onSelect: this.props.onSelect, minDate: this.props.minDate, maxDate: this.props.maxDate});
@@ -200,9 +249,12 @@ var Weeks = React.createClass({displayName: "Weeks",
 
 var Week = React.createClass({displayName: "Week",
     buildDays: function(start) {
-        var days = [start.clone()];
-        for (var i = 1; i <= 6; i++)
-            days.push(start.clone().day(i));
+        var days = [DateUtilities.clone(start)];
+        for (var i = 1; i <= 6; i++) {
+            var clone = DateUtilities.clone(start);
+            DateUtilities.moveToDayOfWeek(clone, i);
+            days.push(clone);
+        }
         return days;
     },
 
@@ -212,11 +264,11 @@ var Week = React.createClass({displayName: "Week",
 
     getDayClassName: function(day) {
         var className = "day";
-        if (day.isSame(moment(), "day"))
+        if (DateUtilities.isSameDay(day, new Date()))
             className += " today";
-        if (this.props.month !== day.month())
+        if (this.props.month !== day.getMonth())
             className += " other-month";
-        if (this.props.selected && this.props.selected.isSame(day, "day"))
+        if (this.props.selected && DateUtilities.isSameDay(day, this.props.selected))
             className += " selected";
 		if (this.isDisabled(day))
 			className += " disabled";
@@ -232,14 +284,14 @@ var Week = React.createClass({displayName: "Week",
 		var minDate = this.props.minDate,
 			maxDate = this.props.maxDate;
 
-		return (minDate && day.isBefore(minDate, "day")) || (maxDate && day.isAfter(maxDate, "day"));
+		return (minDate && DateUtilities.isBefore(day, minDate)) || (maxDate && DateUtilities.isAfter(day, maxDate));
 	},
 
 	render: function() {
         var days = this.buildDays(this.props.start);
 		return React.createElement("div", {className: "week"},
             _.map(days, function(day, i) {
-                return React.createElement("div", {key: i, onClick: this.onSelect.bind(null, day), className: this.getDayClassName(day)}, day.format("DD"))
+                return React.createElement("div", {key: i, onClick: this.onSelect.bind(null, day), className: this.getDayClassName(day)}, DateUtilities.toDayOfMonthString(day))
             }.bind(this))
 		);
 	}
