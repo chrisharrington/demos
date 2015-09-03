@@ -17,18 +17,52 @@
 			span { color:#888888; }
 			button { width:auto; padding:7px 22px; }
             
-            .menu { display:block;
-                @menu-width:250px;
-                >div { position:absolute; z-index:2; top:0;  width:@menu-width; height:100%; .border-box; .transition(-webkit-transform ease 250ms); .transition(transform ease 250ms);
-                    &.left { background:#273D7A; left:@menu-width*-1; }
-                    &.visible.left { .transform(translate3d(@menu-width, 0, 0)); }
+            .menu {
+				display:block;
+                
+				@menu-width:250px;
+                
+				>div {
+					position:absolute;
+					z-index:2;
+					top:0;
+					width:@menu-width; 
+					height:100%; 
+					.border-box; 
+					.transition(-webkit-transform ease 250ms); 
+					.transition(transform ease 250ms);
+					
+                    &.left {
+						background:#273D7A;
+						left:@menu-width*-1;
+					}
                     
-                    &.right { background:#6B1919; right:@menu-width*-1; }
-                    &.visible.right { .transform(translate3d(@menu-width*-1, 0, 0)); }
+					&.visible.left {
+						.transform(translate3d(@menu-width, 0, 0));
+					}
                     
-                    >.menu-item { float:left; width:100%; margin:0; padding:10px 15px; border-bottom:solid 1px #555; cursor:pointer; .border-box; color:#B0B0B0;
-						&:hover { color:#F0F0F0; }
-						>span { float:left; color:inherit; }
+                    &.right {
+						background:#6B1919;
+						right:@menu-width*-1;
+					}
+					
+                    &.visible.right {
+						.transform(translate3d(@menu-width*-1, 0, 0));
+					}
+                    
+                    >.menu-item {
+						float:left;
+						width:100%;
+						margin:0;
+						padding:10px 15px;
+						border-bottom:solid 1px #555;
+						cursor:pointer;
+						.border-box;
+						color:#B0B0B0;
+						
+						&:hover {
+							color:#F0F0F0;
+						}
                     }
                 }
             }
@@ -53,8 +87,8 @@
 						<h1>React JS Sliding Menu</h1>
 						<span>This page demonstrates how a menu panel can be slid in from the side of the screen using React JS. It's a great class to use for mobile devices.</span>
 						<span>The menu itself is a React JS class, and I'm using LESS CSS for some of the more complicated CSS rules. I highly recommend you check them out.</span>
-						<button onClick={this.showLeft}>Show Left Menu!</button>
-						<button onClick={this.showRight}>Show Right Menu!</button>
+			<button onClick={this.showLeft}>Show Left Menu!</button>
+			<button onClick={this.showRight}>Show Right Menu!</button>
 						
 						<Menu ref="left" alignment="left">
 							<MenuItem hash="first-page">First Page</MenuItem>
@@ -99,7 +133,7 @@
 				navigate: function(hash) {
 					window.location.hash = hash;
 				},
-			
+
 				render: function() {
 					return <div className="menu-item" onClick={this.navigate.bind(this, this.props.hash)}>{this.props.children}</div>;
 				}
