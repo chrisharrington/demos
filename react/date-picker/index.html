@@ -6,13 +6,12 @@
 
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script>
 
-        <script src="a-react-datepicker.js"></script>
+        <script src="../../bower_components/a-react-datepicker/a-react-datepicker.js"></script>
 
         <script type="text/javascript">
             $(function() {
-                //React.render(React.createElement(DatePicker, {selected: new Date(), onSelect: onSelect}), document.body);
+                React.render(React.createElement(window.AReactDatepicker, {selected: new Date(), onSelect: onSelect}), document.body);
             });
 
             function onSelect(moment) {
@@ -21,7 +20,7 @@
         </script>
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
-        <link href="style.css" rel="stylesheet" />
+        <link href="../../bower_components/a-react-datepicker/style.css" rel="stylesheet" />
     </head>
     <body>
 

@@ -1,0 +1,19 @@
+{
+  "name": "demos",
+  "version": "0.0.0",
+  "homepage": "https://github.com/chrisharrington/demos",
+  "authors": [
+    "Chris Harrington <chrisharrington99@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "a-react-datepicker": "~0.1.3"
+  }
+}

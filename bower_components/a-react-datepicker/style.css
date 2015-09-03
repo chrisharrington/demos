@@ -1,16 +1,13 @@
-body {
-    font-size:16px;
-    font-family:Arial;
+div.ardp-date-picker {
+  font-size:16px;
+  font-family:Arial;
+  position: relative;
+  box-sizing:border-box;
 }
-
-* {
+div.ardp-date-picker * {
     box-sizing:border-box;
 }
-
-div.date-picker {
-  position: relative;
-}
-div.date-picker div.calendar {
+div.ardp-date-picker div.calendar {
   position: absolute;
   z-index: 10;
   background: white;
@@ -25,27 +22,29 @@ div.date-picker div.calendar {
   transition: transform 200ms ease;
   overflow: hidden;
 }
-div.date-picker div.calendar.visible {
+div.ardp-date-picker div.calendar.visible {
   transform: scale(1, 1);
 }
-div.date-picker div.calendar div.month-header {
+div.ardp-date-picker div.calendar div.month-header {
   float: left;
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-div.date-picker div.calendar div.month-header > i {
+div.ardp-date-picker div.calendar div.month-header > i {
   font-weight: bold;
   padding: 5px 8px;
   border-radius: 3px;
   cursor: pointer;
+  font-style:normal;
+  font-size:0.7em;
 }
-div.date-picker div.calendar div.month-header > i:hover {
+div.ardp-date-picker div.calendar div.month-header > i:hover {
   background-color: #026aa7;
   color: white;
 }
-div.date-picker div.calendar div.week-header {
+div.ardp-date-picker div.calendar div.week-header {
   float: left;
   width: 100%;
   margin-top: 8px;
@@ -54,7 +53,7 @@ div.date-picker div.calendar div.week-header {
   border-bottom: solid 1px #CCC;
   margin-bottom: 3px;
 }
-div.date-picker div.calendar div.week-header > span {
+div.ardp-date-picker div.calendar div.week-header > span {
   float: left;
   width: 14.285714285714286%;
   font-size: 0.6em;
@@ -63,40 +62,40 @@ div.date-picker div.calendar div.week-header > span {
   font-weight: bold;
   text-align: center;
 }
-div.date-picker div.calendar div.weeks {
+div.ardp-date-picker div.calendar div.weeks {
   float: left;
   width: 200%;
   overflow: hidden;
   position: relative;
   height: 140px;
 }
-div.date-picker div.calendar div.weeks > div {
+div.ardp-date-picker div.calendar div.weeks > div {
   position: absolute;
   width: 250px;
 }
-div.date-picker div.calendar div.weeks > div.current {
+div.ardp-date-picker div.calendar div.weeks > div.current {
   left: 0;
 }
-div.date-picker div.calendar div.weeks > div.other {
+div.ardp-date-picker div.calendar div.weeks > div.other {
   left: 250px;
 }
-div.date-picker div.calendar div.weeks > div.other.right {
+div.ardp-date-picker div.calendar div.weeks > div.other.right {
   left: -250px;
 }
-div.date-picker div.calendar div.weeks > div.sliding {
+div.ardp-date-picker div.calendar div.weeks > div.sliding {
   transition: transform 250ms ease;
 }
-div.date-picker div.calendar div.weeks > div.sliding.left {
+div.ardp-date-picker div.calendar div.weeks > div.sliding.left {
   transform: translate3d(-250px, 0, 0);
 }
-div.date-picker div.calendar div.weeks > div.sliding.right {
+div.ardp-date-picker div.calendar div.weeks > div.sliding.right {
   transform: translate3d(250px, 0, 0);
 }
-div.date-picker div.calendar div.weeks div.week {
+div.ardp-date-picker div.calendar div.weeks div.week {
   float: left;
   width: 100%;
 }
-div.date-picker div.calendar div.weeks div.week div.day {
+div.ardp-date-picker div.calendar div.weeks div.week div.day {
   float: left;
   width: 14.285714285714286%;
   font-size: 0.8em;
@@ -105,24 +104,24 @@ div.date-picker div.calendar div.weeks div.week div.day {
   text-align: center;
   border-radius: 3px;
 }
-div.date-picker div.calendar div.weeks div.week div.day:hover {
+div.ardp-date-picker div.calendar div.weeks div.week div.day:hover {
   background: #EAEAEA;
 }
-div.date-picker div.calendar div.weeks div.week div.day.other-month {
+div.ardp-date-picker div.calendar div.weeks div.week div.day.other-month {
   color: #AAA;
 }
-div.date-picker div.calendar div.weeks div.week div.day.disabled {
+div.ardp-date-picker div.calendar div.weeks div.week div.day.disabled {
   color: #E0E0E0;
   cursor: default;
 }
-div.date-picker div.calendar div.weeks div.week div.day.disabled:hover {
+div.ardp-date-picker div.calendar div.weeks div.week div.day.disabled:hover {
   background: transparent !important;
 }
-div.date-picker div.calendar div.weeks div.week div.day.today {
+div.ardp-date-picker div.calendar div.weeks div.week div.day.today {
   background: #68b53e;
   color: white;
 }
-div.date-picker div.calendar div.weeks div.week div.day.selected {
+div.ardp-date-picker div.calendar div.weeks div.week div.day.selected {
   background: #026aa7;
   color: white;
 }
