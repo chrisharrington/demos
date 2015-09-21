@@ -7,6 +7,8 @@
         define(factory);
     global.AReactDatepicker = factory();
 }(this, function () {
+    var React = typeof require === "function" ? require("react") : window.React;
+
     var DateUtilities = {
         pad: function(value, length) {
             while (value.length < length)
@@ -58,16 +60,32 @@
                 selected: DateUtilities.clone(def),
     			minDate: null,
     			maxDate: null,
-    			visible: false
+                id: this.getUniqueIdentifier()
     		};
     	},
 
     	componentDidMount: function() {
-    		document.addEventListener("click", function(e) {
-    			if (this.state.visible && e.target.className !== "date-picker-trigger" && !this.parentsHaveClassName(e.target, "date-picker"))
-    				this.hide();
-    		}.bind(this));
+    		document.addEventListener("click", this.hideOnDocumentClick);
     	},
+
+        componentWillUnmount: function() {
+            document.removeEventListener("click", this.hideOnDocumentClick);
+        },
+
+        hideOnDocumentClick: function(e) {
+            if (e.target.className !== "date-picker-trigger-" + this.state.id && !this.parentsHaveClassName(e.target, "ardp-calendar-" + this.state.id))
+                this.hide();
+        },
+
+        getUniqueIdentifier: function() {
+            function s4() {
+                return Math.floor((1 + Math.random()) * 0x10000)
+                  .toString(16)
+                  .substring(1);
+            }
+
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+        },
 
     	parentsHaveClassName: function(element, className) {
     		var parent = element;
@@ -77,6 +95,8 @@
 
     			parent = parent.parentNode;
     		}
+
+            return false;
     	},
 
     	setMinDate: function(date) {
@@ -96,24 +116,38 @@
     	},
 
     	show: function() {
-    		this.setState({ visible: true });
+            var trigger = this.refs.trigger.getDOMNode(),
+                rect = trigger.getBoundingClientRect(),
+                isTopHalf = rect.top > window.innerHeight/2,
+                calendarHeight = 203;
+
+            this.refs.calendar.show({
+                top: isTopHalf ? (rect.top + window.scrollY - calendarHeight - 3) : (rect.top + trigger.clientHeight + window.scrollY + 3),
+                left: rect.left
+            });
     	},
 
     	hide: function() {
-    		this.setState({ visible: false });
+    		this.refs.calendar.hide();
     	},
 
     	render: function() {
     		return React.createElement("div", {className: "ardp-date-picker"},
-    			React.createElement("input", {type: "text", className: "date-picker-trigger", readOnly: true, value: DateUtilities.toString(this.state.selected), onClick: this.show}),
+    			React.createElement("input", {ref: "trigger", type: "text", className: "date-picker-trigger-" + this.state.id, readOnly: true, value: DateUtilities.toString(this.state.selected), onClick: this.show}),
 
-    			React.createElement(Calendar, {visible: this.state.visible, view: this.state.view, selected: this.state.selected, onSelect: this.onSelect, minDate: this.state.minDate, maxDate: this.state.maxDate})
+    			React.createElement(Calendar, {ref: "calendar", id: this.state.id, view: this.state.view, selected: this.state.selected, onSelect: this.onSelect, minDate: this.state.minDate, maxDate: this.state.maxDate})
     		);
     	}
     });
 
     var Calendar = React.createClass({displayName: "Calendar",
-    	onMove: function(view, isForward) {
+        getInitialState: function() {
+            return {
+                visible: false
+            };
+        },
+
+        onMove: function(view, isForward) {
     		this.refs.weeks.moveTo(view, isForward);
     	},
 
@@ -121,8 +155,23 @@
     		this.refs.monthHeader.enable();
     	},
 
-    	render: function() {
-    		return React.createElement("div", {className: "calendar" + (this.props.visible ? " visible" : "")},
+        show: function(position) {
+            this.setState({
+                visible: true,
+                style: {
+                    top: position.top,
+                    left: position.left
+                }
+            });
+        },
+
+        hide: function() {
+            if (this.state.visible)
+                this.setState({ visible: false });
+        },
+
+        render: function() {
+    		return React.createElement("div", {ref: "calendar", className: "ardp-calendar-" + this.props.id + " calendar" + (this.state.visible ? " calendar-show" : " calendar-hide"), style: this.state.style },
     			React.createElement(MonthHeader, {ref: "monthHeader", view: this.props.view, onMove: this.onMove}),
     			React.createElement(WeekHeader, null),
     			React.createElement(Weeks, {ref: "weeks", view: this.props.view, selected: this.props.selected, onTransitionEnd: this.onTransitionEnd, onSelect: this.props.onSelect, minDate: this.props.minDate, maxDate: this.props.maxDate})
