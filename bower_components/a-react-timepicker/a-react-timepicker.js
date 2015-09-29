@@ -166,35 +166,6 @@
 				{ className: "clock " + (this.props.visible ? "clock-show" : "clock-hide"), style: this.style() },
 				React.createElement(
 					"div",
-					{ className: "time hidden" },
-					React.createElement(
-						"span",
-						{ className: "hour" },
-						_pad(this.props.hour, 2)
-					),
-					React.createElement(
-						"span",
-						null,
-						":"
-					),
-					React.createElement(
-						"span",
-						{ className: "minute" },
-						_pad(this.props.minute, 2)
-					),
-					React.createElement(
-						"span",
-						null,
-						" "
-					),
-					React.createElement(
-						"span",
-						{ className: "am-pm" },
-						this.props.am ? "AM" : "PM"
-					)
-				),
-				React.createElement(
-					"div",
 					{ className: "clock-face-wrapper" },
 					React.createElement(Hours, { visible: this.state.hoursVisible, time: this.getTime(), onClick: this.onHourChanged }),
 					React.createElement(Minutes, { visible: this.state.minutesVisible, time: this.getTime(), onClick: this.onMinuteChanged }),
