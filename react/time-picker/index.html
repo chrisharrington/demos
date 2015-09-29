@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>A React Timepicker Demo</title>
+
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+
+        <script src="../../bower_components/react/react.min.js"></script>
+        <script src="../../bower_components/a-react-timepicker/a-react-timepicker.js"></script>
+
+        <script type="text/javascript">
+            $(function() {
+                React.render(React.createElement(window.AReactTimepicker, {}), document.querySelector("#timepicker-container"));
+            });
+        </script>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
+        <link href="../../bower_components/a-react-timepicker/style.css" rel="stylesheet" />
+
+        <style type="text/css">
+            body { font-size:16px; font-family:Arial; }
+            input { margin-top:10px; padding:5px 8px; font-size:1em; }
+        </style>
+    </head>
+    <body>
+        <h1>a-react-timepicker demo</h1>
+
+        <div id="timepicker-container"></div>
+    </body>
+</html>
