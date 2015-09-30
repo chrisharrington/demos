@@ -4,7 +4,7 @@
       "a-react-timepicker.js",
       "style.css"
   ],
-  "version": "0.1.7",
+  "version": "0.1.8",
   "homepage": "https://github.com/chrisharrington/a-react-timepicker",
   "authors": [
     "Chris Harrington <chrisharrington99@gmail.com>"

@@ -11,7 +11,7 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
 })(undefined, function () {
     var React = typeof require === "function" ? require("react") : window.React;
 
-    var CLOCK_SIZE = 182;
+    var CLOCK_SIZE = 222;
 
     var TimePicker = React.createClass({
         displayName: "TimePicker",
@@ -85,7 +85,7 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
         },
 
         formatTime: function formatTime() {
-            return this.state.hour.toString().pad(2) + ":" + this.state.minute.toString().pad(2) + " " + (this.state.am ? "AM" : "PM");
+            return _pad(this.state.hour) + ":" + _pad(this.state.minute) + " " + (this.state.am ? "AM" : "PM");
         },
 
         render: function render() {
@@ -211,7 +211,7 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
                 React.createElement(
                     "span",
                     { className: "hour" },
-                    time.hour.toString().pad(2)
+                    _pad(time.hour)
                 ),
                 React.createElement(
                     "span",
@@ -221,7 +221,7 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
                 React.createElement(
                     "span",
                     { className: "minute" },
-                    time.minute.toString().pad(2)
+                    _pad(time.minute)
                 ),
                 React.createElement(
                     "span",
@@ -261,7 +261,7 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
 
         buildMinutes: function buildMinutes() {
             var minutes = [];
-            for (var i = 1; i <= 12; i++) minutes.push(((i === 12 ? 0 : i) * 5).toString().pad(2));
+            for (var i = 1; i <= 12; i++) minutes.push(_pad((i === 12 ? 0 : i) * 5));
             return minutes;
         },
 
@@ -290,11 +290,6 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
             if (e.propertyName === "opacity" && e.target.className.indexOf("face-hide") > -1) this.props.onHidden();
         },
 
-        pad: function pad(value) {
-            value = value.toString();
-            return value.length === 1 ? "0" + value : value;
-        },
-
         render: function render() {
             return React.createElement(
                 "div",
@@ -303,7 +298,7 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
                     return React.createElement(
                         "div",
                         { key: i, className: "position position-" + (i + 1) + (parseInt(this.props.selected) === parseInt(value) ? " selected" : ""), onClick: this.props.onClick.bind(null, value) },
-                        this.pad(value)
+                        _pad(value)
                     );
                 }).bind(this)),
                 React.createElement(LongHand, { type: this.props.type, selected: this.props.selected }),
@@ -348,6 +343,11 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
             );
         }
     });
+
+    function _pad(value) {
+        value = value.toString();
+        return value.length === 1 ? "0" + value : value;
+    }
 
     return TimePicker;
 });
