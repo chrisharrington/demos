@@ -15,6 +15,6 @@
   ],
   "dependencies": {
     "a-react-datepicker": "latest",
-    "a-react-timepicker": "~0.1.4"
+    "a-react-timepicker": "latest"
   }
 }
