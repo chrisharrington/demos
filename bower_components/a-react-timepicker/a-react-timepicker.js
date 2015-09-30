@@ -8,7 +8,7 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
     if (typeof exports === "object" && typeof module !== "undefined") module.exports = factory();
     if (typeof define === "function" && define.amd) define(factory);
     (global || window).AReactTimepicker = factory();
-})(undefined, function () {
+})(this, function () {
     var React = typeof require === "function" ? require("react") : window.React;
 
     var CLOCK_SIZE = 222;
@@ -92,7 +92,7 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
             return React.createElement(
                 "div",
                 { className: "time-picker" },
-                React.createElement("input", { ref: "trigger", type: "text", disabled: true, value: this.formatTime(), onClick: this.show }),
+                React.createElement("input", { ref: "trigger", type: "text", readOnly: true, value: this.formatTime(), onClick: this.show }),
                 React.createElement(Clock, { visible: this.state.visible, position: this.state.position, onTimeChanged: this.onTimeChanged, onDone: this.onDone, hour: this.state.hour, minute: this.state.minute, am: this.state.am })
             );
         }
@@ -312,10 +312,11 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
         displayName: "LongHand",
 
         render: function render() {
+            var deg = (this.props.selected / this.props.max * 360);
             return React.createElement(
                 "div",
                 null,
-                React.createElement("div", { className: "long-hand " + this.props.type + "-position-" + this.props.selected }),
+                React.createElement("div", { className: "long-hand", style: { transform: "rotate(" + deg + "deg)", WebkitTransform: "rotate(" + deg + "deg)" } }),
                 React.createElement("div", { className: "long-hand-attachment" })
             );
         }
@@ -327,7 +328,7 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
         buildTick: function buildTick(index) {
             return React.createElement(
                 "div",
-                { key: index, className: "tick " + (index % 5 === 0 ? "big " : ""), style: { transform: "rotate(" + index * 6 + "deg)" } },
+                { key: index, className: "tick " + (index % 5 === 0 ? "big " : ""), style: { transform: "rotate(" + index * 6 + "deg)", WebkitTransform: "rotate(" + index * 6 + "deg)" } },
                 React.createElement("div", null)
             );
         },

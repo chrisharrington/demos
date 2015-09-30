@@ -15,6 +15,7 @@
   ],
   "dependencies": {
     "a-react-datepicker": "latest",
-    "a-react-timepicker": "latest"
+    "a-react-timepicker": "latest",
+    "jquery": "~2.1.4"
   }
 }

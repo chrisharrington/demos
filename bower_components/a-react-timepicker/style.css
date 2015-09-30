@@ -23,7 +23,11 @@ div.time-picker div.clock.clock-hide {
   transition: visibility 0s 350ms, opacity 350ms ease;
 }
 div.time-picker div.clock.clock-hide .position,
-div.time-picker div.clock.clock-hide .centre {
+div.time-picker div.clock.clock-hide .inner-face,
+div.time-picker div.clock.clock-hide .long-hand,
+div.time-picker div.clock.clock-hide .long-hand-attachment,
+div.time-picker div.clock.clock-hide .ticks {
+  transition: visibility 0s 350ms;
   visibility: hidden;
 }
 div.time-picker div.clock div.clock-face-wrapper {
@@ -210,55 +214,8 @@ div.time-picker div.clock div.face div.long-hand {
   left: 50%;
   top: 0;
   z-index: 6;
-  transform-origin: 0% 100%;
-}
-div.time-picker div.clock div.face div.long-hand.hours-position-12,
-div.time-picker div.clock div.face div.long-hand.minutes-position-0 {
-  transform: rotate(0deg) scale(1,0.8);
-}
-div.time-picker div.clock div.face div.long-hand.hours-position-1,
-div.time-picker div.clock div.face div.long-hand.minutes-position-5 {
-  transform: rotate(30deg) scale(1,0.8);
-}
-div.time-picker div.clock div.face div.long-hand.hours-position-2,
-div.time-picker div.clock div.face div.long-hand.minutes-position-10 {
-  transform: rotate(60deg) scale(1,0.8);
-}
-div.time-picker div.clock div.face div.long-hand.hours-position-3,
-div.time-picker div.clock div.face div.long-hand.minutes-position-15 {
-  transform: rotate(90deg) scale(1,0.8);
-}
-div.time-picker div.clock div.face div.long-hand.hours-position-4,
-div.time-picker div.clock div.face div.long-hand.minutes-position-20 {
-  transform: rotate(120deg) scale(1,0.8);
-}
-div.time-picker div.clock div.face div.long-hand.hours-position-5,
-div.time-picker div.clock div.face div.long-hand.minutes-position-25 {
-  transform: rotate(150deg) scale(1,0.8);
-}
-div.time-picker div.clock div.face div.long-hand.hours-position-6,
-div.time-picker div.clock div.face div.long-hand.minutes-position-30 {
-  transform: rotate(180deg) scale(1,0.8);
-}
-div.time-picker div.clock div.face div.long-hand.hours-position-7,
-div.time-picker div.clock div.face div.long-hand.minutes-position-35 {
-  transform: rotate(210deg) scale(1,0.8);
-}
-div.time-picker div.clock div.face div.long-hand.hours-position-8,
-div.time-picker div.clock div.face div.long-hand.minutes-position-40 {
-  transform: rotate(240deg) scale(1,0.8);
-}
-div.time-picker div.clock div.face div.long-hand.hours-position-9,
-div.time-picker div.clock div.face div.long-hand.minutes-position-45 {
-  transform: rotate(270deg) scale(1,0.8);
-}
-div.time-picker div.clock div.face div.long-hand.hours-position-10,
-div.time-picker div.clock div.face div.long-hand.minutes-position-50 {
-  transform: rotate(300deg) scale(1,0.8);
-}
-div.time-picker div.clock div.face div.long-hand.hours-position-11,
-div.time-picker div.clock div.face div.long-hand.minutes-position-55 {
-  transform: rotate(330deg) scale(1,0.8);
+  -webkit-transform-origin: 50% 100%;
+  transform-origin: 50% 100%;
 }
 div.time-picker div.clock div.face div.long-hand-attachment {
   width: 7px;
@@ -268,7 +225,7 @@ div.time-picker div.clock div.face div.long-hand-attachment {
   background: #026aa7;
   position: absolute;
   top: 72px;
-  left: 72px;
+  left: 73px;
 }
 div.time-picker div.clock div.face div.inner-face {
   position: absolute;
@@ -276,8 +233,8 @@ div.time-picker div.clock div.face div.inner-face {
   width: 79px;
   height: 79px;
   border: solid 1px #DADADA;
-  top: 36px;
-  left: 36px;
+  top: 35px;
+  left: 35px;
   border-radius: 100%;
   background: white;
 }
@@ -289,7 +246,7 @@ div.time-picker div.clock div.face div.ticks div.tick {
   left: 50%;
   top: 0;
   z-index: 3;
-  transform-origin: 0% 100%;
+  -webkit-transform-origin: 0% 100%;
 }
 div.time-picker div.clock div.face div.ticks div.tick div {
   position: absolute;
