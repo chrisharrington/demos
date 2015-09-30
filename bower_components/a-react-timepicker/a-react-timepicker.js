@@ -5,271 +5,279 @@
         module.exports = factory();
     if (typeof define === "function" && define.amd)
         define(factory);
-    global.AReactTimepicker = factory();
+    (global || window).AReactTimepicker = factory();
 }(this, function () {
 	var React = typeof require === "function" ? require("react") : window.React;
 
-	var CLOCK_SIZE = 182;
+    var CLOCK_SIZE = 182;
 
-	var Timepicker = React.createClass({
-		displayName: "exports",
+    var TimePicker = React.createClass({
+    	getInitialState: function() {
+    		return {
+    			visible: false,
+    			hour: 12,
+    			minute: 0,
+    			am: true,
+    			position: {
+    				top: 0,
+    				left: 0
+    			}
+    		};
+    	},
 
-		getInitialState: function getInitialState() {
-			return {
-				visible: false,
-				hour: 12,
-				minute: 0,
-				am: true,
-				position: {
-					top: 0,
-					left: 0
-				}
-			};
-		},
+    	componentWillMount: function() {
+    		document.addEventListener("click", this.hideOnDocumentClick);
+    	},
 
-		componentWillMount: function componentWillMount() {
-			document.addEventListener("click", this.hideOnDocumentClick);
-		},
+    	componentWillUnmount: function() {
+    		document.removeEventListener("click", this.hideOnDocumentClick);
+    	},
 
-		componentWillUnmount: function componentWillUnmount() {
-			document.removeEventListener("click", this.hideOnDocumentClick);
-		},
+    	show: function() {
+    		var trigger = this.refs.trigger.getDOMNode(),
+    			rect = trigger.getBoundingClientRect(),
+    			isTopHalf = rect.top > window.innerHeight/2;
 
-		show: function show() {
-			var trigger = this.refs.trigger.getDOMNode(),
-			    rect = trigger.getBoundingClientRect(),
-			    isTopHalf = rect.top > window.innerHeight / 2;
+    		this.setState({
+    			visible: true,
+    			position: {
+    				top: isTopHalf ? (rect.top + window.scrollY - CLOCK_SIZE - 3) : (rect.top + trigger.clientHeight + window.scrollY + 3),
+    				left: rect.left
+    			}
+    		});
+    	},
 
-			this.setState({
-				visible: true,
-				position: {
-					top: isTopHalf ? rect.top + window.scrollY - CLOCK_SIZE - 3 : rect.top + trigger.clientHeight + window.scrollY + 3,
-					left: rect.left
-				}
-			});
-		},
+    	hide: function() {
+    		this.setState({
+    			visible: false
+    		});
+    	},
 
-		hide: function hide() {
-			this.setState({
-				visible: false
-			});
-		},
+    	hideOnDocumentClick: function(e) {
+    		if (!this.parentsHaveClassName(e.target, "time-picker"))
+    			this.hide();
+    	},
 
-		hideOnDocumentClick: function hideOnDocumentClick(e) {
-			if (!this.parentsHaveClassName(e.target, "time-picker")) this.hide();
-		},
+    	parentsHaveClassName: function(element, className) {
+    		var parent = element;
+    		while (parent) {
+    			if (parent.className && parent.className.indexOf(className) > -1)
+    				return true;
 
-		parentsHaveClassName: function parentsHaveClassName(element, className) {
-			var parent = element;
-			while (parent) {
-				if (parent.className && parent.className.indexOf(className) > -1) return true;
+    			parent = parent.parentNode;
+    		}
 
-				parent = parent.parentNode;
-			}
+    		return false;
+    	},
 
-			return false;
-		},
+    	onTimeChanged: function(hour, minute, am) {
+    		this.setState({
+    			hour: hour,
+    			minute: minute,
+    			am: am
+    		});
+    	},
 
-		onTimeChanged: function onTimeChanged(hour, minute, am) {
-			this.setState({
-				hour: hour,
-				minute: minute,
-				am: am
-			});
-		},
+    	onDone: function() {
+    		this.hide();
+    	},
 
-		onDone: function onDone() {
-			this.hide();
-		},
+    	formatTime: function() {
+    		return this.state.hour.toString().pad(2) + ":" + this.state.minute.toString().pad(2) + " " + (this.state.am ? "AM" : "PM");
+    	},
 
-		formatTime: function formatTime() {
-			return _pad(this.state.hour.toString(), 2) + ":" + _pad(this.state.minute.toString(), 2) + " " + (this.state.am ? "AM" : "PM");
-		},
+    	render: function() {
+    		return <div className="time-picker">
+    			<input ref="trigger" type="text" disabled value={this.formatTime()} onClick={this.show} />
+    			<Clock visible={this.state.visible} position={this.state.position} onTimeChanged={this.onTimeChanged} onDone={this.onDone} hour={this.state.hour} minute={this.state.minute} am={this.state.am} />
+    		</div>;
+    	}
+    });
 
-		render: function render() {
-			return React.createElement(
-				"div",
-				{ className: "time-picker" },
-				React.createElement("input", { ref: "trigger", type: "text", disabled: true, value: this.formatTime(), onClick: this.show }),
-				React.createElement(Clock, { visible: this.state.visible, position: this.state.position, onTimeChanged: this.onTimeChanged, onDone: this.onDone, hour: this.state.hour, minute: this.state.minute, am: this.state.am })
-			);
-		}
-	});
+    var Clock = React.createClass({
+        getInitialState: function() {
+            return {
+                hoursVisible: true,
+                minutesVisible: false,
+    			position: "below"
+            };
+        },
 
-	var Clock = React.createClass({
-		displayName: "Clock",
+    	componentWillReceiveProps: function(props) {
+    		if (this.props.visible && !props.visible)
+    			this.setState({
+    				hoursVisible: true,
+    				minutesVisible: false,
+    				amPmVisible: false
+    			});
+    	},
 
-		getInitialState: function getInitialState() {
-			return {
-				hoursVisible: true,
-				minutesVisible: false,
-				amPmVisible: false,
-				position: "below"
-			};
-		},
+    	getTime: function() {
+    		return {
+    			hour: this.props.hour,
+    			minute: this.props.minute,
+    			am: this.props.am
+    		};
+    	},
 
-		componentWillReceiveProps: function componentWillReceiveProps(props) {
-			if (this.props.visible && !props.visible) this.setState({
-				hoursVisible: true,
-				minutesVisible: false,
-				amPmVisible: false
-			});
-		},
+    	onHourChanged: function(hour) {
+    		this._hour = hour;
+    		this.setState({
+    			hoursVisible: false,
+    			minutesVisible: true
+    		});
+    	},
 
-		getTime: function getTime() {
-			return {
-				hour: this.props.hour,
-				minute: this.props.minute,
-				am: this.props.am
-			};
-		},
+    	onHoursHidden: function() {
+    		this.props.onTimeChanged(this._hour, this.props.minute, this.props.am);
+    	},
 
-		onHourChanged: function onHourChanged(hour) {
-			this.props.onTimeChanged(hour, this.props.minute, this.props.am);
+    	onMinuteChanged: function(minute) {
+    		this.props.onDone();
+    		this._minute = minute;
 
-			this.setState({
-				hoursVisible: false,
-				minutesVisible: true
-			});
-		},
+    		this.setState({
+    			minutesVisible: false,
+    			amPmVisible: true
+    		});
+    	},
 
-		onMinuteChanged: function onMinuteChanged(minute) {
-			this.props.onTimeChanged(this.props.hour, minute, this.props.am);
+    	onMinutesHidden: function() {
+    		this.props.onTimeChanged(this.props.hour, this._minute, this.props.am);
+    	},
 
-			this.setState({
-				minutesVisible: false,
-				amPmVisible: true
-			});
-		},
+    	onAmPmChanged: function(am) {
+    		this.props.onTimeChanged(this.props.hour, this.props.minute, am);
+    	},
 
-		onAmPmChanged: function onAmPmChanged(am) {
-			this.props.onDone();
-			this.props.onTimeChanged(this.props.hour, this.props.minute, am);
+    	style: function() {
+    		return {
+    			top: this.props.position.top,
+    			left: this.props.position.left
+    		};
+    	},
 
-			this.setState({
-				am: am,
-				amPmVisible: false,
-				hoursVisible: true
-			});
-		},
+    	render: function() {
+    		return <div className={"clock " + (this.props.visible ? "clock-show" : "clock-hide")} style={this.style()}>
+    			<div className="clock-face-wrapper">
+    	            <Hours visible={this.state.hoursVisible} time={this.getTime()} onClick={this.onHourChanged} onHidden={this.onHoursHidden} />
+    				<Minutes visible={this.state.minutesVisible} time={this.getTime()} onClick={this.onMinuteChanged} onHidden={this.onMinutesHidden} />
+    			</div>
+    			<AmPmInfo time={this.getTime()} onChange={this.onAmPmChanged} />
+    		</div>;
+    	}
+    });
 
-		style: function style() {
-			return {
-				top: this.props.position.top,
-				left: this.props.position.left
-			};
-		},
+    var AmPmInfo = React.createClass({
+    	render: function() {
+    		var time = this.props.time;
+    		return <div className="am-pm-info">
+    			<div className={"am" + (time.am ? " selected" : "")} onClick={this.props.onChange.bind(null, true)}>AM</div>
+    			<Time time={time} />
+    			<div className={"pm" + (!time.am ? " selected" : "")} onClick={this.props.onChange.bind(null, false)}>PM</div>
+    		</div>;
+    	}
+    });
 
-		render: function render() {
-			return React.createElement(
-				"div",
-				{ className: "clock " + (this.props.visible ? "clock-show" : "clock-hide"), style: this.style() },
-				React.createElement(
-					"div",
-					{ className: "clock-face-wrapper" },
-					React.createElement(Hours, { visible: this.state.hoursVisible, time: this.getTime(), onClick: this.onHourChanged }),
-					React.createElement(Minutes, { visible: this.state.minutesVisible, time: this.getTime(), onClick: this.onMinuteChanged }),
-					React.createElement(AmPm, { visible: this.state.amPmVisible, time: this.getTime(), onClick: this.onAmPmChanged })
-				)
-			);
-		}
-	});
+    var Time = React.createClass({
+    	render: function() {
+    		var time = this.props.time;
+    		return <div className="time">
+    			<span className="hour">{time.hour.toString().pad(2)}</span>
+    			<span>:</span>
+    			<span className="minute">{time.minute.toString().pad(2)}</span>
+    			<span> </span>
+    			<span className="am-pm">{time.am ? "AM" : "PM"}</span>
+    		</div>;
+    	}
+    });
 
-	var Hours = React.createClass({
-		displayName: "Hours",
+    var Hours = React.createClass({
+        buildHours: function() {
+            var hours = [];
+            for (var i = 1; i <= 12; i++)
+                hours.push(i);
+            return hours;
+        },
 
-		buildHours: function buildHours() {
-			var hours = [];
-			for (var i = 1; i <= 12; i++) hours.push(i);
-			return hours;
-		},
+    	render: function() {
+    		var { time, ...props } = this.props;
+    		return <Face {...props} type="hours" values={this.buildHours()} selected={this.props.time.hour} />;
+    	}
+    });
 
-		render: function render() {
-			return React.createElement(Face, { visible: this.props.visible, type: "hours", values: this.buildHours(), prompt: "Hour", time: this.props.time, onClick: this.props.onClick, selected: this.props.time.hour });
-		}
-	});
+    var Minutes = React.createClass({
+        buildMinutes: function() {
+            var minutes = [];
+            for (var i = 1; i <= 12; i++)
+                minutes.push(((i === 12 ? 0 : i)*5).toString().pad(2));
+            return minutes;
+        },
 
-	var Minutes = React.createClass({
-		displayName: "Minutes",
+    	render: function() {
+    		var { time, ...props } = this.props;
+    		return <Face {...props} type="minutes" values={this.buildMinutes()} selected={this.props.time.minute} />;
+    	}
+    });
 
-		buildMinutes: function buildMinutes() {
-			var minutes = [];
-			for (var i = 1; i <= 12; i++) minutes.push(_pad(((i === 12 ? 0 : i) * 5), 2));
-			return minutes;
-		},
+    var Face = React.createClass({
+    	componentDidMount: function() {
+    		this.refs.face.getDOMNode().addEventListener("transitionend", this.onTransitionEnd);
+    	},
 
-		render: function render() {
-			return React.createElement(Face, { visible: this.props.visible, type: "minutes", values: this.buildMinutes(), prompt: "Minute", time: this.props.time, onClick: this.props.onClick, selected: this.props.time.minute });
-		}
-	});
+    	componentWillUnmount: function() {
+    		this.refs.face.getDOMNode().removeEventListener("transitionend", this.onTransitionEnd);
+    	},
 
-	var AmPm = React.createClass({
-		displayName: "AmPm",
+    	onTransitionEnd: function(e) {
+    		if (e.propertyName === "opacity" && e.target.className.indexOf("face-hide") > -1)
+    			this.props.onHidden();
+    	},
 
-		render: function render() {
-			return React.createElement(
-				"div",
-				{ className: "face am-pm" + (this.props.visible ? " face-show" : " face-hide") },
-				React.createElement(
-					"div",
-					{ className: "centre" },
-					React.createElement(
-						"div",
-						{ className: "prompt" },
-						"AM/PM?"
-					),
-					React.createElement(
-						"div",
-						{ className: "am-pm" },
-						React.createElement(
-							"span",
-							{ className: this.props.time.am ? "selected" : "", onClick: this.props.onClick.bind(null, true) },
-							"AM"
-						),
-						React.createElement(
-							"span",
-							{ className: !this.props.time.am ? "selected" : "", onClick: this.props.onClick.bind(null, false) },
-							"PM"
-						)
-					)
-				)
-			);
-		}
-	});
+    	pad: function(value) {
+    		value = value.toString();
+    		return value.length === 1 ? ("0" + value) : value;
+    	},
 
-	var Face = React.createClass({
-		displayName: "Face",
+    	render: function() {
+    		return <div ref="face" className={"face " + this.props.type + (this.props.visible ? " face-show" : " face-hide")}>
+                {this.props.values.map(function(value, i) {
+                    return <div key={i} className={"position position-" + (i+1) + (parseInt(this.props.selected) === parseInt(value) ? " selected" : "")} onClick={this.props.onClick.bind(null, value)}>{this.pad(value)}</div>;
+                }.bind(this))}
+    			<LongHand type={this.props.type} selected={this.props.selected} />
+    			<div className="inner-face"></div>
+    			<Ticks />
+    		</div>;
+    	}
+    });
 
-		render: function render() {
-			return React.createElement(
-				"div",
-				{ className: "face " + this.props.type + (this.props.visible ? " face-show" : " face-hide") },
-				this.props.values.map((function (value, i) {
-					return React.createElement(
-						"div",
-						{ key: i, className: "position position-" + (i + 1) + (parseInt(this.props.selected) === parseInt(value) ? " selected" : ""), onClick: this.props.onClick.bind(null, value) },
-						_pad(value, 2)
-					);
-				}).bind(this)),
-				React.createElement(
-					"div",
-					{ className: "centre" },
-					React.createElement(
-						"div",
-						{ className: "prompt" },
-						this.props.prompt
-					)
-				)
-			);
-		}
-	});
+    var LongHand = React.createClass({
+    	render: function() {
+    		return <div>
+    			<div className={"long-hand " + this.props.type + "-position-" + this.props.selected}></div>
+    			<div className="long-hand-attachment"></div>
+    		</div>;
+    	}
+    });
 
-	function _pad(value, length) {
-		value = value.toString();
-		while (value.length < length)
-			value = "0" + value;
-		return value;
-	}
+    var Ticks = React.createClass({
+    	buildTick: function(index) {
+    		return <div key={index} className={"tick " + (index%5 === 0 ? "big " : "")} style={{ transform: "rotate(" + (index*6) + "deg)"}}>
+    			<div></div>
+    		</div>;
+    	},
 
-    return Timepicker;
+    	render: function() {
+    		var ticks = [];
+    		for (var i = 0; i < 60; i++)
+    			ticks.push(this.buildTick(i));
+
+    		return <div className="ticks">
+    			{ticks}
+    		</div>;
+    	}
+    });
+
+    return TimePicker;
+
 }));

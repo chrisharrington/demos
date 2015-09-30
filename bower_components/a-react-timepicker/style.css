@@ -1,6 +1,3 @@
-div.time-picker {
-    font-family:"Arial";
-}
 div.time-picker input {
   float: left;
   width: 100%;
@@ -10,7 +7,7 @@ div.time-picker div.clock {
   z-index: 2;
   border-radius: 3px;
   padding: 16px;
-  background: #EAEAEA;
+  background: white;
   -webkit-box-shadow: 0 2px 8px rgba(100,100,100,0.4);
   -moz-box-shadow: 0 2px 8px rgba(100,100,100,0.4);
   box-shadow: 0 2px 8px rgba(100,100,100,0.4);
@@ -34,8 +31,47 @@ div.time-picker div.clock div.clock-face-wrapper {
   background: white;
   border: solid 1px #DADADA;
   border-radius: 100%;
-  width: 150px;
-  height: 150px;
+  width: 151px;
+  height: 151px;
+}
+div.time-picker div.clock div.am-pm-info {
+  float: left;
+  width: 100%;
+  margin-top: 16px;
+}
+div.time-picker div.clock div.am-pm-info div.am,
+div.time-picker div.clock div.am-pm-info div.pm {
+  float: left;
+  color: black;
+  border: solid 1px #DADADA;
+  font-size: 0.7em;
+  padding: 4px 7px;
+  border-radius: 3px;
+  background: white;
+  cursor: pointer;
+}
+div.time-picker div.clock div.am-pm-info div.am:hover,
+div.time-picker div.clock div.am-pm-info div.pm:hover {
+  background: #EAEAEA;
+}
+div.time-picker div.clock div.am-pm-info div.am.selected,
+div.time-picker div.clock div.am-pm-info div.pm.selected {
+  background: #026aa7;
+  color: white;
+}
+div.time-picker div.clock div.am-pm-info div.pm {
+  float: right;
+}
+div.time-picker div.clock div.am-pm-info div.time {
+  float: left;
+  color: #777;
+  font-size: 0.9em;
+  width: calc(100% - 68px);
+  text-align: center;
+  display: inline-block;
+  vertical-align: middle;
+  height: 23px;
+  line-height: 23px;
 }
 div.time-picker div.clock div.face {
   position: absolute;
@@ -69,6 +105,8 @@ div.time-picker div.clock div.face div.centre div.prompt {
   color: #026aa7;
   font-weight: bold;
   line-height: normal;
+  display: none;
+  font-family: "Open Sans";
 }
 div.time-picker div.clock div.face div.centre div.am-pm {
   margin-top: 10px;
@@ -99,6 +137,7 @@ div.time-picker div.clock div.face div.position {
   position: absolute;
   color: black;
   font-size: 0.8em;
+  z-index: 7;
   border-radius: 100%;
   cursor: pointer;
   width: 29px;
@@ -117,49 +156,149 @@ div.time-picker div.clock div.face div.position.selected {
 }
 div.time-picker div.clock div.face div.position.position-12 {
   left: calc(50% - 14.5px);
-  top: 0;
+  top: 4px;
 }
 div.time-picker div.clock div.face div.position.position-1 {
-  left: 90px;
-  top: 8px;
+  left: 87px;
+  top: 12px;
 }
 div.time-picker div.clock div.face div.position.position-2 {
-  left: 112px;
-  top: 31px;
+  left: 110px;
+  top: 32px;
 }
 div.time-picker div.clock div.face div.position.position-3 {
-  left: 121px;
+  left: 118px;
   top: 60.5px;
 }
 div.time-picker div.clock div.face div.position.position-4 {
-  left: 112px;
-  top: 91px;
+  left: 110px;
+  top: 89px;
 }
 div.time-picker div.clock div.face div.position.position-5 {
-  left: 90px;
-  top: 113px;
+  left: 87px;
+  top: 111px;
 }
 div.time-picker div.clock div.face div.position.position-6 {
   left: 60.5px;
-  top: 121px;
+  top: 117px;
 }
 div.time-picker div.clock div.face div.position.position-7 {
-  left: 30px;
-  top: 113px;
+  left: 34px;
+  top: 111px;
 }
 div.time-picker div.clock div.face div.position.position-8 {
-  left: 9px;
-  top: 91px;
+  left: 12px;
+  top: 89px;
 }
 div.time-picker div.clock div.face div.position.position-9 {
-  left: 0;
+  left: 4px;
   top: 60.5px;
 }
 div.time-picker div.clock div.face div.position.position-10 {
-  left: 8px;
-  top: 31px;
+  left: 12px;
+  top: 32px;
 }
 div.time-picker div.clock div.face div.position.position-11 {
-  left: 30px;
-  top: 8px;
+  left: 34px;
+  top: 12px;
+}
+div.time-picker div.clock div.face div.long-hand {
+  height: 75px;
+  width: 1px;
+  background: #026aa7;
+  position: absolute;
+  left: 50%;
+  top: 0;
+  z-index: 6;
+  transform-origin: 0% 100%;
+}
+div.time-picker div.clock div.face div.long-hand.hours-position-12,
+div.time-picker div.clock div.face div.long-hand.minutes-position-0 {
+  transform: rotate(0deg) scale(1,0.8);
+}
+div.time-picker div.clock div.face div.long-hand.hours-position-1,
+div.time-picker div.clock div.face div.long-hand.minutes-position-5 {
+  transform: rotate(30deg) scale(1,0.8);
+}
+div.time-picker div.clock div.face div.long-hand.hours-position-2,
+div.time-picker div.clock div.face div.long-hand.minutes-position-10 {
+  transform: rotate(60deg) scale(1,0.8);
+}
+div.time-picker div.clock div.face div.long-hand.hours-position-3,
+div.time-picker div.clock div.face div.long-hand.minutes-position-15 {
+  transform: rotate(90deg) scale(1,0.8);
+}
+div.time-picker div.clock div.face div.long-hand.hours-position-4,
+div.time-picker div.clock div.face div.long-hand.minutes-position-20 {
+  transform: rotate(120deg) scale(1,0.8);
+}
+div.time-picker div.clock div.face div.long-hand.hours-position-5,
+div.time-picker div.clock div.face div.long-hand.minutes-position-25 {
+  transform: rotate(150deg) scale(1,0.8);
+}
+div.time-picker div.clock div.face div.long-hand.hours-position-6,
+div.time-picker div.clock div.face div.long-hand.minutes-position-30 {
+  transform: rotate(180deg) scale(1,0.8);
+}
+div.time-picker div.clock div.face div.long-hand.hours-position-7,
+div.time-picker div.clock div.face div.long-hand.minutes-position-35 {
+  transform: rotate(210deg) scale(1,0.8);
+}
+div.time-picker div.clock div.face div.long-hand.hours-position-8,
+div.time-picker div.clock div.face div.long-hand.minutes-position-40 {
+  transform: rotate(240deg) scale(1,0.8);
+}
+div.time-picker div.clock div.face div.long-hand.hours-position-9,
+div.time-picker div.clock div.face div.long-hand.minutes-position-45 {
+  transform: rotate(270deg) scale(1,0.8);
+}
+div.time-picker div.clock div.face div.long-hand.hours-position-10,
+div.time-picker div.clock div.face div.long-hand.minutes-position-50 {
+  transform: rotate(300deg) scale(1,0.8);
+}
+div.time-picker div.clock div.face div.long-hand.hours-position-11,
+div.time-picker div.clock div.face div.long-hand.minutes-position-55 {
+  transform: rotate(330deg) scale(1,0.8);
+}
+div.time-picker div.clock div.face div.long-hand-attachment {
+  width: 7px;
+  height: 7px;
+  border-radius: 100%;
+  z-index: 7;
+  background: #026aa7;
+  position: absolute;
+  top: 72px;
+  left: 72px;
+}
+div.time-picker div.clock div.face div.inner-face {
+  position: absolute;
+  z-index: 5;
+  width: 79px;
+  height: 79px;
+  border: solid 1px #DADADA;
+  top: 36px;
+  left: 36px;
+  border-radius: 100%;
+  background: white;
+}
+div.time-picker div.clock div.face div.ticks div.tick {
+  height: 75px;
+  width: 1px;
+  background: white;
+  position: absolute;
+  left: 50%;
+  top: 0;
+  z-index: 3;
+  transform-origin: 0% 100%;
+}
+div.time-picker div.clock div.face div.ticks div.tick div {
+  position: absolute;
+  z-index: 4;
+  background: #AAA;
+  top: 0;
+  height: 4px;
+  width: 1px;
+}
+div.time-picker div.clock div.face div.ticks div.tick.big div {
+  height: 7px;
 }
