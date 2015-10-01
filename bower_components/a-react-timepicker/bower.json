@@ -1,10 +1,10 @@
 {
   "name": "a-react-timepicker",
   "main": [
-      "a-react-timepicker.js",
+      "built.js",
       "style.css"
   ],
-  "version": "0.1.16",
+  "version": "0.1.18",
   "homepage": "https://github.com/chrisharrington/a-react-timepicker",
   "authors": [
     "Chris Harrington <chrisharrington99@gmail.com>"

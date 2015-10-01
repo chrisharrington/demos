@@ -1,10 +1,10 @@
 {
   "name": "a-react-timepicker",
   "main": [
-    "a-react-timepicker.js",
+    "built.js",
     "style.css"
   ],
-  "version": "0.1.16",
+  "version": "0.1.18",
   "homepage": "https://github.com/chrisharrington/a-react-timepicker",
   "authors": [
     "Chris Harrington <chrisharrington99@gmail.com>"
@@ -30,11 +30,11 @@
   "dependencies": {
     "react": "~0.13.3"
   },
-  "_release": "0.1.16",
+  "_release": "0.1.18",
   "_resolution": {
     "type": "version",
-    "tag": "0.1.16",
-    "commit": "0a1db3c95841001afe46b6e84cb85b36ecea358d"
+    "tag": "0.1.18",
+    "commit": "481aade1d441e34c0d7005ad10f6eaeac3f4b9e3"
   },
   "_source": "https://github.com/chrisharrington/a-react-timepicker.git",
   "_target": "*",

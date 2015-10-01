@@ -8,7 +8,7 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
     if (typeof exports === "object" && typeof module !== "undefined") module.exports = factory();
     if (typeof define === "function" && define.amd) define(factory);
     (global || window).AReactTimepicker = factory();
-})(this, function () {
+})(undefined, function () {
     var React = typeof require === "function" ? require("react") : window.React;
 
     var CLOCK_SIZE = 222;
@@ -84,15 +84,11 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
             this.hide();
         },
 
-        formatTime: function formatTime() {
-            return _pad(this.state.hour) + ":" + _pad(this.state.minute) + " " + (this.state.am ? "AM" : "PM");
-        },
-
         render: function render() {
             return React.createElement(
                 "div",
                 { className: "time-picker" },
-                React.createElement("input", { ref: "trigger", type: "text", readOnly: true, value: this.formatTime(), onClick: this.show }),
+                React.createElement("input", { ref: "trigger", type: "text", readOnly: "true", value: _getTimeString(this.state.hour, this.state.minute, this.state.am), onClick: this.show }),
                 React.createElement(Clock, { visible: this.state.visible, position: this.state.position, onTimeChanged: this.onTimeChanged, onDone: this.onDone, hour: this.state.hour, minute: this.state.minute, am: this.state.am })
             );
         }
@@ -190,48 +186,15 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
                     { className: "am" + (time.am ? " selected" : ""), onClick: this.props.onChange.bind(null, true) },
                     "AM"
                 ),
-                React.createElement(Time, { time: time }),
+                React.createElement(
+                    "div",
+                    { className: "time" },
+                    _getTimeString(time.hour, time.minute, time.am)
+                ),
                 React.createElement(
                     "div",
                     { className: "pm" + (!time.am ? " selected" : ""), onClick: this.props.onChange.bind(null, false) },
                     "PM"
-                )
-            );
-        }
-    });
-
-    var Time = React.createClass({
-        displayName: "Time",
-
-        render: function render() {
-            var time = this.props.time;
-            return React.createElement(
-                "div",
-                { className: "time" },
-                React.createElement(
-                    "span",
-                    { className: "hour" },
-                    _pad(time.hour)
-                ),
-                React.createElement(
-                    "span",
-                    null,
-                    ":"
-                ),
-                React.createElement(
-                    "span",
-                    { className: "minute" },
-                    _pad(time.minute)
-                ),
-                React.createElement(
-                    "span",
-                    null,
-                    " "
-                ),
-                React.createElement(
-                    "span",
-                    { className: "am-pm" },
-                    time.am ? "AM" : "PM"
                 )
             );
         }
@@ -312,11 +275,11 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
         displayName: "LongHand",
 
         render: function render() {
-            var deg = (this.props.selected / (this.props.type === "hours" ? 12 : 60) * 360);
+            var deg = this.props.selected / (this.props.type === "hours" ? 12 : 60) * 360;
             return React.createElement(
                 "div",
                 null,
-                React.createElement("div", { className: "long-hand", style: { transform: "rotate(" + deg + "deg)", WebkitTransform: "rotate(" + deg + "deg)" } }),
+                React.createElement("div", { className: "long-hand", style: { transform: "rotate(" + deg + "deg) scale(1, 0.8)", WebkitTransform: "rotate(" + deg + "deg) scale(1, 0.8)" } }),
                 React.createElement("div", { className: "long-hand-attachment" })
             );
         }
@@ -326,11 +289,7 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
         displayName: "Ticks",
 
         buildTick: function buildTick(index) {
-            return React.createElement(
-                "div",
-                { key: index, className: "tick " + (index % 5 === 0 ? "big " : ""), style: { transform: "rotate(" + index * 6 + "deg)", WebkitTransform: "rotate(" + index * 6 + "deg)" } },
-                React.createElement("div", null)
-            );
+            return React.createElement("div", { key: index, className: "tick " + (index % 5 === 0 ? "big " : ""), style: { transform: "rotate(" + index * 6 + "deg)", WebkitTransform: "rotate(" + index * 6 + "deg)" } }, React.createElement("div", null));
         },
 
         render: function render() {
@@ -348,6 +307,10 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
     function _pad(value) {
         value = value.toString();
         return value.length === 1 ? "0" + value : value;
+    }
+
+    function _getTimeString(hour, minute, am) {
+        return hour + ":" + _pad(minute) + " " + (am ? "AM" : "PM");
     }
 
     return TimePicker;
