@@ -312,7 +312,7 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
         displayName: "LongHand",
 
         render: function render() {
-            var deg = (this.props.selected / this.props.max * 360);
+            var deg = (this.props.selected / (this.props.type === "hours" ? 12 : 60) * 360);
             return React.createElement(
                 "div",
                 null,
